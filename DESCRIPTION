@@ -1,0 +1,29 @@
+Package: ideafix
+Type: Package
+Title: ideafix, DEAmination FIXing
+Version: 0.0.0-9000
+Authors@R: c(
+    person("Maitena", "Tellaetxe Abete", email = "maitenat@gmail.com",
+    role = c("aut", "cre")),
+    person("Borja", "Calvo", email = "borja.calvo@ehu.eus", role = "aut"),
+    person("Charles", "Lawrie", email = "charles.lawrie@biodonostia.org",
+    role = "aut"))
+Description: ideafix is a decision tree-based variant refinement tool that filters 
+    formaldehyde-induced cytosine deaminations from variant lists obtained from
+    DNA sequencing data from FFPE specimens.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.0.1)
+Imports:
+    dplyr,
+    tidyr,
+    tibble,
+    purrr,
+    logging,
+    magrittr,
+    h2o
+Suggests:
+URL: https://github.com/mmaitenat/ideafix
+BugReports: https://github.com/mmaitenat/ideafix/issues
+RoxygenNote: 7.1.0

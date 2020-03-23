@@ -1,0 +1,20 @@
+citHeader("To cite ideafix in publications use:")
+
+citEntry(entry = "Article",
+  title        = "A decision tree-based method for the refinement of variants in FFPE DNA sequencing data",
+  author       = personList(as.person("Maitena Tellaetxe-Abete"),
+                   as.person("Borja Calvo"),
+                   as.person("Charles Lawrie")),
+  journal      = "TBD",
+  year         = "2020",
+  volume       = "TBD",
+  number       = "TBD",
+  pages        = "TBD",
+  url          = "TBD",
+
+  textVersion  =
+  paste("Maitena Tellaetxe-Abete, Borja Calvo, Charles Lawrie (2020).",
+        "A decision tree-based method for the refinement of variants in FFPE DNA sequencing data.",
+        "Journal of Statistical Software, 40(3), 1-25.",
+        "URL TBD")
+)
