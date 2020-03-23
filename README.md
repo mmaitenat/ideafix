@@ -1,36 +1,34 @@
-IDEAFIX
-=======
+# IDEAFIX
 
 ideafix is a decision tree-based variant refinement tool that filters
 formaldehyde-induced cytosine deaminations from variant lists obtained
 from DNA sequencing data from FFPE specimens.
 
-Installation
-------------
+## Installation
 
 ``` r
 if (!require("devtools")) install.packages("devtools")
 devtools::install_github("mmaitenat/ideafix")
 ```
 
-Requirements
-------------
+## Requirements
 
 ideafix needs the following programs to run:
 
--   bcftools
+  - bcftools
 
--   samtools
+  - samtools
 
-ideafix also needs the following files: \* Fasta file of the genome data
-was aligned to. If data is unaligned, the genome to align the data to.
+ideafix also needs the following files:
+
+  - Fasta file of the genome data was aligned to. If data is unaligned,
+    the genome to align the data to.
 
 If variant calling is to be run from bam files, you will also need:
 
--   GATK4
+  - GATK4
 
-Example
--------
+## Example
 
 ``` r
 library(ideafix)
