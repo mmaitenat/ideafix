@@ -1,0 +1,8 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+inst/extdata/RF_final_model
+inst/extdata/RF_final_model.tar.gz
+inst/extdata/test1.RDS
+inst/extdata/test2.RDS

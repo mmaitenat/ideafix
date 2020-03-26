@@ -11,15 +11,13 @@ filter_variants_XGBoost <- function(variant_descriptors) {
   XGBoost_model_filename <- system.file("extdata", "XGBoost_final_model.RDS", package = "ideafix")
   XGBoost_model <- readRDS(XGBoost_model_filename)
   variant_descriptors_XGBoost <- one_hot_encoding(variant_descriptors)
-  # Simplify the model in case less descriptors of the variants are present
-
   XGBoost_pred <- stats::predict(XGBoost_model,
                           as.matrix(variant_descriptors_XGBoost),
                           type = "prob")
   thr <- 0.5766285
   XGBoost_pred_class <- ifelse(XGBoost_pred$X1 > thr, "deamination", "non-deamination") %>%
     factor(levels = c("non-deamination", "deamination"))
-  predictions <- tibble(id = variant_descriptors$complete_id,
+  predictions <- tibble(id = variant_descriptors$id,
                         probability = XGBoost_pred$X1,
                         class = XGBoost_pred_class)
   return(predictions)
@@ -38,6 +36,8 @@ filter_variants_XGBoost <- function(variant_descriptors) {
 #' @examples
 
 filter_variants_RF <- function(variant_descriptors) {
+  RF_model_parts <- list.files(system.file("extdata", package = "ideafix"), "RF_final_model.tar.gz.parta*", full.names = TRUE)
+  join_uncompress_targz(RF_model_parts)
   RF_model_filename <- system.file("extdata", "RF_final_model", package = "ideafix")
   Sys.unsetenv("http_proxy")
   h2o.init(
@@ -50,7 +50,7 @@ filter_variants_RF <- function(variant_descriptors) {
   RF_pred <- h2o.predict(object = RF_model,
                          newdata = variant_descriptors_h2o) %>%
     as_tibble()
-  predictions <- tibble(id = variant_descriptors$complete_id,
+  predictions <- tibble(id = variant_descriptors$id,
                         probability = RF_pred$X1,
                         class = RF_pred$predict) %>%
     mutate(class = factor(ifelse (class == "X1", "deamination", "non-deamination")))
@@ -112,7 +112,7 @@ check_algorithm <- function(algorithm) {
 #' @examples
 filter_variants <- function(variant_descriptors, algorithm = "RF") {
   defined <- ls()
-  passed <- names(as.list(match.call())[-1])
+  passed <- c(names(as.list(match.call())[-1]), "algorithm") # manually add algorithm because it does alwalys have a default value, which is RF
   check_arguments(defined = defined, passed = passed)
   check_algorithm(algorithm = algorithm)
   check_descriptors(variant_descriptors = variant_descriptors, algorithm = algorithm)
@@ -123,4 +123,19 @@ filter_variants <- function(variant_descriptors, algorithm = "RF") {
   }
   message("Filtering went successfully.")
   return(predictions)
+}
+
+#' Join split tar files and uncompress them
+#'
+#' @param split_targz_files Vector containing the full paths of the parts in which a tar file has been split
+#'
+#' @return None
+#' @export
+#'
+#' @examples
+join_uncompress_targz <- function(split_targz_files) {
+  message("Uncompressing RF model...")
+  outdir <- system.file("extdata", package = "ideafix")
+  cmd <- sprintf("cat %s | tar -xzvf - -C %s", paste(split_targz_files, collapse = " "), outdir)
+  system(cmd, intern = FALSE)
 }

@@ -4,7 +4,8 @@
 #'
 #' It stops the program if the argument is not present.
 #'
-#' @param argument Name of the argument to be checked
+#' @param defined Arguments required for the function to run
+#' @param passed Arguments passed to the function
 #'
 #' @return None
 #' @export

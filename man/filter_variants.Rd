@@ -4,12 +4,12 @@
 \alias{filter_variants}
 \title{filter_variants}
 \usage{
-filter_variants(variant_descriptors, algorithm)
+filter_variants(variant_descriptors, algorithm = "RF")
 }
 \arguments{
 \item{variant_descriptors}{Matrix containing the descriptors of the variants to be analyzed and subjected to filtering}
 
-\item{algorithm}{One of the algorithms to use to filter the variants. Can be RF or XGBoost.}
+\item{algorithm}{One of the algorithms to use to filter the variants. Can be RF or XGBoost. Defaults to RF.}
 }
 \value{
 Matrix containing three columns: variant id, probability of deamination and predicted label: deamination or non-deamination
