@@ -32,4 +32,9 @@ If variant calling is to be run from bam files, you will also need:
 
 ``` r
 library(ideafix)
+# Extract descriptors from vcf filename
+vcf_filename <- "/home/maitena/Research/FFPE/code/ideafix/ideafix/inst/extdata/SRR1523260_filtermarks_annotated.vcf"
+ref_genome <- "/home/maitena/Research/Data/RefGenomes/hg19/ucsc.hg19.fasta"
+descriptors <- get_descriptors(vcf_filename = vcf_filename, fasta_filename = ref_genome)
+predictions <- filter_variants(variant_descriptors = descriptors)
 ```

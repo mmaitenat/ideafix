@@ -1,6 +1,8 @@
 ---
 title: "README"
-output: html_document
+output:
+  md_document:
+    variant: gfm
 ---
 
 ```{r setup, include=FALSE}
@@ -21,19 +23,28 @@ devtools::install_github("mmaitenat/ideafix")
 ## Requirements
 
 ideafix needs the following programs to run:
+
 * bcftools
+
 * samtools
 
 ideafix also needs the following files:
+
 * Fasta file of the genome data was aligned to. If data is unaligned, the genome to align the data to.
 
 If variant calling is to be run from bam files, you will also need:
+
 * GATK4
 
 ## Example
 
 ``` r
 library(ideafix)
+# Extract descriptors from vcf filename
+vcf_filename <- "/home/maitena/Research/FFPE/code/ideafix/ideafix/inst/extdata/SRR1523260_filtermarks_annotated.vcf"
+ref_genome <- "/home/maitena/Research/Data/RefGenomes/hg19/ucsc.hg19.fasta"
+descriptors <- get_descriptors(vcf_filename = vcf_filename, fasta_filename = ref_genome)
+predictions <- filter_variants(variant_descriptors = descriptors)
 ```
 
 
