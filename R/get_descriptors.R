@@ -110,6 +110,7 @@ extract_vcf <- function(vcf_filename, mutation_ids, samplename) {
 #' @export
 #' @import dplyr
 #' @import tidyr
+#' @import purrr
 #' @examples
 extract_fa <- function(mutation_ids, fasta_filename, k = 2) {
   message(sprintf("Variant context of +- %s positions will be extracted.", k))
@@ -140,7 +141,7 @@ extract_fa <- function(mutation_ids, fasta_filename, k = 2) {
   surr_bases %>%
     mutate(is.repeat.region = surr_bases %>%
              select(c("current", "before.1", "after.1")) %>%
-             pmap_lgl(~any(check_lowercase(.)))) -> fa_descriptors
+             purrr::pmap_lgl(~any(check_lowercase(.)))) -> fa_descriptors
   ## Convert to uppercase
   cols_toupper <- setdiff(colnames(fa_descriptors), c("id", "bases", "is.repeat.region"))
   fa_descriptors %>%

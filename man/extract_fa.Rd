@@ -14,7 +14,7 @@ extract_fa(mutation_ids, fasta_filename, k = 2)
 \item{k}{Number of bases to the right and to the left of the variant locus to get the genomic sequence from.}
 }
 \value{
-Tibble containing the base composition of k positions before and k positions after the variant locus. Columns are mutation_id, current, bases, before_2, before_1, after_1, after_2, before and after.
+Tibble containing the base composition of k positions before and k positions after the variant locus. Columns are mutation_id, current, bases, before.2, before.1, after.1, after.2, before and after.
 }
 \description{
 \code{extract_fa} extracts the descriptors of the data that are derived from a reference genome fasta file
