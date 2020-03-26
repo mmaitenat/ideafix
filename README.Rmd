@@ -30,9 +30,11 @@ ideafix needs the following programs to run:
 
 ideafix also needs the following files:
 
+* VCF file obtained from an FFPE specimen. Variant calling needs to be run with Mutect2, with strand bias annotation enabled. It can be either a tumor-only or a normal-tumor paired variant calling.
+
 * Fasta file of the genome data was aligned to. If data is unaligned, the genome to align the data to.
 
-If variant calling is to be run from bam files, you will also need:
+If variant calling is to be run from bam files (feature not available yet), you will also need:
 
 * GATK4
 
