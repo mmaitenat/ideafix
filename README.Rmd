@@ -44,6 +44,7 @@ library(ideafix)
 vcf_filename <- "/home/maitena/Research/FFPE/code/ideafix/ideafix/inst/extdata/SRR1523260_filtermarks_annotated.vcf"
 ref_genome <- "/home/maitena/Research/Data/RefGenomes/hg19/ucsc.hg19.fasta"
 descriptors <- get_descriptors(vcf_filename = vcf_filename, fasta_filename = ref_genome)
+# Filter C:G > T:A variants
 predictions <- filter_variants(variant_descriptors = descriptors)
 ```
 
