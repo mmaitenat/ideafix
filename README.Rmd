@@ -11,22 +11,30 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # IDEAFIX
 
+### Overview
+
 ideafix is a decision tree-based variant refinement tool that filters formaldehyde-induced cytosine deaminations from variant lists obtained from DNA sequencing data from FFPE specimens.
 
-## Installation
+### Installation
+
+Installation may take a while...
 
 ``` r
 if (!require("devtools")) install.packages("devtools")
 devtools::install_github("mmaitenat/ideafix")
 ```
 
-## Requirements
+### Requirements
 
 ideafix needs the following programs to run:
 
 * bcftools
 
-* samtools
+* samtools (>1.8)
+
+It also depends on the following packages:
+
+* h2o 3.22.1.1
 
 ideafix also needs the following files:
 
@@ -38,7 +46,7 @@ If variant calling is to be run from bam files (feature not available yet), you 
 
 * GATK4
 
-## Example
+### Example
 
 ``` r
 library(ideafix)
@@ -50,4 +58,6 @@ descriptors <- get_descriptors(vcf_filename = vcf_filename, fasta_filename = ref
 predictions <- filter_variants(variant_descriptors = descriptors)
 ```
 
+### LICENSE
+GNU General Public License v3.0
 

@@ -12,14 +12,17 @@ filter_variants_XGBoost <- function(variant_descriptors) {
   XGBoost_model <- readRDS(XGBoost_model_filename)
   variant_descriptors_XGBoost <- one_hot_encoding(variant_descriptors)
   XGBoost_pred <- stats::predict(XGBoost_model,
-                          as.matrix(variant_descriptors_XGBoost),
-                          type = "prob")
+                                 as.matrix(variant_descriptors_XGBoost),
+                                 type = "prob")
   thr <- 0.5766285
   XGBoost_pred_class <- ifelse(XGBoost_pred$X1 > thr, "deamination", "non-deamination") %>%
     factor(levels = c("non-deamination", "deamination"))
-  predictions <- tibble(id = variant_descriptors$id,
-                        probability = XGBoost_pred$X1,
-                        class = XGBoost_pred_class)
+  predictions <- tibble(CHROM = gsub(":.*", "", variant_descriptors$id),
+                        POS = gsub(".*:", "", variant_descriptors$id),
+                        REF = variant_descriptors$ref.allele,
+                        ALT = variant_descriptors$alt.allele,
+                        DEAM_SCORE = XGBoost_pred$X1,
+                        DEAMINATION = XGBoost_pred_class)
   return(predictions)
 }
 
@@ -50,10 +53,13 @@ filter_variants_RF <- function(variant_descriptors) {
   RF_pred <- h2o.predict(object = RF_model,
                          newdata = variant_descriptors_h2o) %>%
     as_tibble()
-  predictions <- tibble(id = variant_descriptors$id,
-                        probability = RF_pred$X1,
-                        class = RF_pred$predict) %>%
-    mutate(class = factor(ifelse (class == "X1", "deamination", "non-deamination")))
+  predictions <- tibble(CHROM = gsub(":.*", "", variant_descriptors$id),
+                        POS = gsub(".*:", "", variant_descriptors$id),
+                        REF = variant_descriptors$ref.allele,
+                        ALT = variant_descriptors$alt.allele,
+                        DEAM_SCORE = RF_pred$X1,
+                        DEAMINATION = RF_pred$predict) %>%
+    mutate(DEAMINATION = factor(ifelse (DEAMINATION == "X1", "deamination", "non-deamination")))
   return(predictions)
 }
 
@@ -75,9 +81,9 @@ check_descriptors <- function(variant_descriptors, algorithm) {
     if (algorithm == "RF") {
       warning(sprintf("variant_descriptors has less descriptors than expected. Missing descriptors are: %s. Filtering process will be run but performance is not guaranteed.", paste(missing_data_descriptors, collapse = ", ")))
     } else if (algorithm == "XGBoost") {
-    stop(sprintf("variant_descriptors has less descriptors than expected. Missing descriptors are: %s. Filtering process can not be run.", paste(missing_data_descriptors, collapse = ", ")))
+      stop(sprintf("variant_descriptors has less descriptors than expected. Missing descriptors are: %s. Filtering process can not be run.", paste(missing_data_descriptors, collapse = ", ")))
     } else {
-    stop("Algorithm not available. Please choose one of the following: RF, XGBoost")
+      stop("Algorithm not available. Please choose one of the following: RF, XGBoost")
     }
   } else {
     message("Descriptor check went successfully. Proceeding with filtering.")

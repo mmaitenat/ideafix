@@ -21,7 +21,7 @@ get_descriptors <- function(vcf_filename, fasta_filename) {
   samplename <- get_samplename(vcf_filename)
   # Descriptors from the VCF file
   message("Extracting variants from vcf file...")
-  descriptors_vcf <- extract_vcf( mutation_ids = mutation_ids, vcf_filename = vcf_filename, samplename = samplename)
+  descriptors_vcf <- extract_vcf(mutation_ids = mutation_ids, vcf_filename = vcf_filename, samplename = samplename)
   message("Finished extracting variants from vcf file.")
   # Descriptors from FASTA file
   message("Extracting variants from fasta file...")
@@ -120,7 +120,7 @@ extract_fa <- function(mutation_ids, fasta_filename, k = 2) {
   odd_idx <- seq(from = 1, to = length(surr_bases_raw), by = 2)
   even_idx <- seq(from = 2, to = length(surr_bases_raw), by = 2)
   base_mat <- data.frame(region = surr_bases_raw[odd_idx],
-                             bases = surr_bases_raw[even_idx]) %>%
+                         bases = surr_bases_raw[even_idx]) %>%
     as_tibble()
   ## Separate bases in before and after & obtain mutation id_from region
   ## The following lines are specific to k = 2. They won't work for another choice of k
