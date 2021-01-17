@@ -2,19 +2,16 @@
 % Please edit documentation in R/get_descriptors.R
 \name{get_samplename}
 \alias{get_samplename}
-\title{Get sample name from vcf file}
+\title{Retrieve sample name}
 \usage{
 get_samplename(vcf_filename)
 }
 \arguments{
-\item{vcf_filename}{VCF filename to extract the sample name from}
+\item{vcf_filename}{character string naming the path to the vcf file to extract the sample name from.}
 }
 \value{
-Name given to the sample the vcf filename contains variants from
+Character string with the name given to the sample when running Mutect2 on the data.
 }
 \description{
-It extracts from the VCF filename the name given to the sample in which variants were called
-}
-\details{
-It corresponds to the tumor field in the vcf filename. In tumor-only variant calling, that is the only sample. In tumor-normal variant calling, it corresponds to the tumor sample
+\code{get_samplename} retrieves from \code{vcf_filename} the name given to the sample in which variants were called. The retrieved sample nane corresponds to the tumor field in \code{vcf_filename}. In tumor-only variant calling, that is the only sample. In tumor-normal variant calling, it corresponds to the tumor sample.
 }

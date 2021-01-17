@@ -7,11 +7,11 @@
 check_lowercase(char)
 }
 \arguments{
-\item{char}{Character representing a genomic base}
+\item{char}{character string}
 }
 \value{
 Logical value indicating whether \strong{char} is lowercase.
 }
 \description{
-Check whether a character is lowercase
+\code{check_lowercase} checks whether a character is lowercase.
 }

@@ -2,20 +2,20 @@
 % Please edit documentation in R/get_descriptors.R
 \name{extract_fa}
 \alias{extract_fa}
-\title{Extract descriptors from fasta file}
+\title{Retrieve descriptors from fasta file}
 \usage{
 extract_fa(mutation_ids, fasta_filename, k = 2)
 }
 \arguments{
-\item{mutation_ids}{Vector that contains the mutation ids of the variants to be subjected to filtering. Mutation id format is chr:pos.}
+\item{mutation_ids}{character vector containing the ids of the loci to get the descriptors of. Id format is CHR:POS.}
 
-\item{fasta_filename}{Reference genome data was aligned to.}
+\item{fasta_filename}{character string naming the path to the reference genome FASTA file the sequencing data was aligned to.}
 
-\item{k}{Number of bases to the right and to the left of the variant locus to get the genomic sequence from.}
+\item{k}{integer with the number of bases to the right and to the left of the loci to get the genomic sequence from.}
 }
 \value{
-Tibble containing the base composition of k positions before and k positions after the variant locus. Columns are mutation_id, current, bases, before.2, before.1, after.1, after.2, before and after.
+Tibble containing a set of descriptors related to the genomic base sequence ranging from locus - \code{k} to locus + \code{k} for each locus in \code{mutation_ids}. These descriptors, divided in columns, are: base two positions before, base one position before, base two positions after, base one position after, dinucleotide before and dinucleotide after.
 }
 \description{
-\code{extract_fa} extracts the descriptors of the data that are derived from a reference genome fasta file
+\code{extract_fa} retrieves from \code{fasta_filename} a set of descriptors for the C:G > T:A variants defined in \code{mutation_ids}. These descriptors are relevant to their classification into deaminations or non-deaminations.
 }

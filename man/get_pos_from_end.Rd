@@ -2,20 +2,20 @@
 % Please edit documentation in R/get_descriptors.R
 \name{get_pos_from_end}
 \alias{get_pos_from_end}
-\title{Get distance from end of read}
+\title{Retrieve variant distance from end of read}
 \usage{
 get_pos_from_end(vcf_filename, samplename, ...)
 }
 \arguments{
-\item{vcf_filename}{Variant call vcf filename}
+\item{vcf_filename}{character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode with strand bias annotation enabled.}
 
-\item{samplename}{Name given to the sample the vcf filename contains variants from, ordered in order of appearance in the vcf file}
+\item{samplename}{character string naming the sample in \code{vcf_filename}. This must match the name given to the sample when running Mutect2. It can be obtained by calling \code{get_samplename} on \code{vcf_filename}.}
 
-\item{...}{Not to be checked}
+\item{...}{additional arguments not to be checked.}
 }
 \value{
-Vector containing the median distance from end of read of each variant, ordered in order of appearance in the vcf file
+Numeric vector containing the median distance from end of read of each C:G > T:A variant in \code{vcf_filename}, ordered by appearance in the file.
 }
 \description{
-Get median value of the position of the variant (starting from the end of the read) in reads that support the alternate allele.
+\code{get_pos_from_end} retrieves, for each C:G > T:A variant present in \code{vcf_filename}, the median value of the position of the variant (starting from the end of the read) in those reads that support the alternate allele. This data is retrieved from \code{vcf_filename}.
 }

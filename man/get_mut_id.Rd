@@ -2,16 +2,16 @@
 % Please edit documentation in R/get_descriptors.R
 \name{get_mut_id}
 \alias{get_mut_id}
-\title{Get mutation id}
+\title{Retrieve mutation id}
 \usage{
 get_mut_id(vcf_filename)
 }
 \arguments{
-\item{vcf_filename}{Variant call vcf filename}
+\item{vcf_filename}{character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify.}
 }
 \value{
-Vector containing the mutation id of the variants to be subjected to filtering. Mutation id format is samplename:chr:pos.
+Character vector with the mutation id, i.e. CHR:POS, of the C:G > T:A variants in \code{vcf_filename}.
 }
 \description{
-Parses a vcf file and creates a vector of the mutation ids of the variants to be subjected to filtering
+This function parses \code{vcf_filename} and retrieves the mutation id (CHR:POS) of each C:G > T:A variant in the file.
 }

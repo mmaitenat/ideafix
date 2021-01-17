@@ -1,14 +1,17 @@
-#' Get descriptors
+#' Get variant descriptors
 #'
-#' Get all the C:G > T:A variant descriptors needed for running the filtering.
+#' \code{get_descriptors} obtains a set of descriptors of the C:G > T:A variants in \code{vcf_filename} that are relevant to their classification into deaminations or non-deaminations. These descriptors are extracted from \code{vcf_filename} and \code{fasta_filename}, or calculated using data retrieved from them.
 #'
-#' Get all the C:G > T:A variant descriptors needed for running the filtering. The descriptors are obtained from the variant vcf file and reference genome fasta file. The function can only run on a single vcf file.
 #'
-#' @param vcf_filename Variant call vcf filename
-#' @param fasta_filename Reference genome data was aligned to.
+#' @param vcf_filename character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode with strand bias annotation enabled.
+#' @param fasta_filename character string naming the path to the reference genome FASTA file the sequencing data was aligned to.
 #'
-#' @return A tibble containing the descriptors of the C:G > T:A variants needed for running the filtering.
+#' @return Tibble containing the descriptors of the C:G > T:A variants in \code{vcf_filename} needed for their classification.
 #' @export
+#' @import dplyr
+#' @details The returned tibble contains the values of each C:G > T:A variant for the following descriptors, divided in columns: VAF, number of alternate bases, normalized number of alternate bases, number of reference bases, normalized number of reference bases, reference allele, alternate allele, base quality, base quality fraction, fragment length, median position from read end, mapping quality, FDeamC, SOB, SB-GUO, SB-GATK, normalized median position from read end, base two positions before, base one position before, base two positions after, base one position after, dinucleotide before and dinucleotide after.
+#'
+#' For further detail in each of them, see each of the individual help files.
 #'
 #' @examples
 get_descriptors <- function(vcf_filename, fasta_filename) {
@@ -54,18 +57,19 @@ get_descriptors <- function(vcf_filename, fasta_filename) {
   return(all_descriptors)
 }
 
-#' Extract descriptors from vcf file
+#' Retrieve descriptors from vcf file
 #'
-#' Extract model descriptors that are found in vcf files
+#'\code{extract_vcf} obtains from \code{vcf_filename}, a set of descriptors for the C:G > T:A variants defined in \code{mutation_ids}. These descriptors are relevant to their classification into deaminations or non-deaminations and may be directly extracted from \code{vcf_filename} or calculated using data retrieved from it.
 #'
-#' @param vcf_filename VCF filename to extract the sample name from
-#' @param mutation_ids Vector that contains the mutation ids of the variants to be subjected to filtering. Mutation id format is chr:pos.
-#' @param samplename Name given to the sample the vcf filename contains variants from, ordered in order of appearance in the vcf file
+#' @param vcf_filename character string naming the path to the input vcf, i.e. the vcf file containing the variants in \code{mutation_ids}. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode with strand bias annotation enabled.
+#' @param mutation_ids character vector containing the ids of the loci to get the descriptors of. Id format is CHR:POS and can be obtained by calling the function \code{get_mut_id} on \code{vcf_filename}.
+#' @param samplename character string naming the sample in \code{vcf_filename}. This must match the name given to the sample when running Mutect2. It can be obtained by calling \code{get_samplename} on \code{vcf_filename}.
 #'
-#' @return A tibble containing the descriptors of the variants that are extracted from vcf files.
+#' @return Tibble containing a set of descriptors for the C:G > T:A variants in \code{mutation_ids} and extracted or calculated using \code{vcf_filename}.
 #' @export
 #' @import tibble
 #' @import dplyr
+#' @details The returned tibble contains the values of each C:G > T:A variant for the following descriptors, divided in columns: VAF, number of alternate bases, normalized number of alternate bases, number of reference bases, normalized number of reference bases, reference allele, alternate allele, base quality, base quality fraction, fragment length, median position from read end, normalized median position from read end, mapping quality, FDeamC, SOB, SB-GUO and SB-GATK.
 #'
 #' @examples
 extract_vcf <- function(vcf_filename, mutation_ids, samplename) {
@@ -98,15 +102,16 @@ extract_vcf <- function(vcf_filename, mutation_ids, samplename) {
   return(vcf_descriptors)
 }
 
-#' Extract descriptors from fasta file
+#' Retrieve descriptors from fasta file
 #'
-#' \code{extract_fa} extracts the descriptors of the data that are derived from a reference genome fasta file
+#'\code{extract_fa} retrieves from \code{fasta_filename} a set of descriptors for the C:G > T:A variants defined in \code{mutation_ids}. These descriptors are relevant to their classification into deaminations or non-deaminations.
 #'
-#' @param mutation_ids Vector that contains the mutation ids of the variants to be subjected to filtering. Mutation id format is chr:pos.
-#' @param fasta_filename Reference genome data was aligned to.
-#' @param k Number of bases to the right and to the left of the variant locus to get the genomic sequence from.
+#' @param mutation_ids character vector containing the ids of the loci to get the descriptors of. Id format is CHR:POS.
+#' @param fasta_filename character string naming the path to the reference genome FASTA file the sequencing data was aligned to.
+#' @param k integer with the number of bases to the right and to the left of the loci to get the genomic sequence from.
 #'
-#' @return Tibble containing the base composition of k positions before and k positions after the variant locus. Columns are mutation_id, current, bases, before.2, before.1, after.1, after.2, before and after.
+#' @return Tibble containing a set of descriptors related to the genomic base sequence ranging from locus - \code{k} to locus + \code{k} for each locus in \code{mutation_ids}. These descriptors, divided in columns, are: base two positions before, base one position before, base two positions after, base one position after, dinucleotide before and dinucleotide after.
+#'
 #' @export
 #' @import dplyr
 #' @import tidyr
@@ -149,23 +154,24 @@ extract_fa <- function(mutation_ids, fasta_filename, k = 2) {
   return(fa_descriptors)
 }
 
-
-#' Get surrounding bases
+#' Retrieve surrounding base sequence of locus
 #'
-#' Returns the base composition of the fragment that surrounds each of the provided genomic variants. The region goes from the locus - \strong{k} to locus + \strong{k}, including the locus itself.
+#' \code{get_surr_bases} retrieves the base sequence of the \[locus - \code{k}, locus + \code{k}\] region of each locus in \code{mutation_ids} from \code{fasta_filename}.
 #'
-#' @param fasta_filename Reference genome data was aligned to.
-#' @param mutation_ids Vector that contains the mutation ids of the variants to be subjected to filtering. Mutation id format is samplename:chr:pos.
-#' @param k Number of bases to the right and to the left of the variant locus to get the genomic sequence from.
+#' @param fasta_filename character string naming the path to the reference genome FASTA file the sequencing data was aligned to.
+#' @param mutation_ids character vector containing the ids of the loci to get the surrounding bases of. Id format is CHR:POS and can be obtained by calling the function \code{get_mut_id} on the vcf file containing those loci.
+#' @param k integer with the number of bases to the right and to the left of the loci to get the genomic sequence from.
 #'
-#' @return Genomic bases \strong{k} positions before and after each variant in \strong{mutation_ids}, including the variant locus itself.
+#' @return Character vector with the genomic base sequence ranging from locus - \code{k} to locus + \code{k} for each locus in \code{mutation_ids}.
+#'
 #' @export
-#' @import dplyr
+#' @details The sequence of the surrounding bases is retrieved from \code{fasta_filename} using samtools faidx tool. In the process, \code{get_surr_bases} creates a temporary file necessary for this tool to run.
+#'
 #' @examples
 get_surr_bases <- function(fasta_filename, mutation_ids, k) {
   tmpdir <- "/tmp"
   tmp_filename <- file.path(tmpdir, "mut_regions.temp")
-  write_region_file(mutation_ids = mutation_ids, k = k, tmp_filename = tmp_filename)
+  write_region_file(ids = mutation_ids, k = k, tmp_filename = tmp_filename)
   cmd_run <- sprintf("samtools faidx %s -r %s", fasta_filename, tmp_filename)
   bases <- system(cmd_run, intern = TRUE)
   cmd_rm <- sprintf("rm %s", tmp_filename)
@@ -173,21 +179,21 @@ get_surr_bases <- function(fasta_filename, mutation_ids, k) {
   return(bases)
 }
 
-#' Write temporary locus region file
+#' Write temporary loci region file
 #'
-#' Creates the file needed by samtools faidx to get the surrounding bases of a locus
+#' \code{write_region_file} creates the file needed by samtools faidx to get the \code{k} surrounding bases of the loci defined in \code{mutation_ids}.
 #'
-#' @param mutation_ids Vector containing the mutation id of the variants to be subjected to filtering. Mutation id format is samplename:chr:pos.
-#' @param k Number of bases to the right and to the left of the variant locus to get the genomic sequence from.
-#' @param tmp_filename Path of the temporary file.
+#' @param ids character vector containing the ids of the loci to get the surrounding bases of. Id format is CHR:POS and can be obtained by calling the function \code{get_mut_id} on the vcf file containing those loci.
+#' @param k integer with the number of bases to the right and to the left of the loci to get the genomic sequence from.
+#' @param tmp_filename character string naming the path to the file to write.
 #'
 #' @return None
 #' @export
 #' @import dplyr
 #' @importFrom utils write.table
 #' @examples
-write_region_file <- function(mutation_ids, k, tmp_filename) {
-  strsplit(mutation_ids, ":") %>%
+write_region_file <- function(ids, k, tmp_filename) {
+  strsplit(ids, ":") %>%
     data.frame() %>%
     t() %>%
     data.frame() %>%
@@ -201,15 +207,14 @@ write_region_file <- function(mutation_ids, k, tmp_filename) {
     write.table(., file = tmp_filename, sep = "\n", quote = FALSE, col.names = FALSE, row.names = FALSE)
 }
 
-#' Get sample name from vcf file
+#' Retrieve sample name
 #'
-#' It extracts from the VCF filename the name given to the sample in which variants were called
+#' \code{get_samplename} retrieves from \code{vcf_filename} the name given to the sample in which variants were called. The retrieved sample nane corresponds to the tumor field in \code{vcf_filename}. In tumor-only variant calling, that is the only sample. In tumor-normal variant calling, it corresponds to the tumor sample.
 #'
-#' It corresponds to the tumor field in the vcf filename. In tumor-only variant calling, that is the only sample. In tumor-normal variant calling, it corresponds to the tumor sample
+#' @param vcf_filename character string naming the path to the vcf file to extract the sample name from.
 #'
-#' @param vcf_filename VCF filename to extract the sample name from
+#' @return Character string with the name given to the sample when running Mutect2 on the data.
 #'
-#' @return Name given to the sample the vcf filename contains variants from
 #' @export
 #'
 #' @examples
@@ -220,13 +225,13 @@ get_samplename <- function(vcf_filename) {
   return(samplename)
 }
 
-#' Get mutation id
+#' Retrieve mutation id
 #'
-#' Parses a vcf file and creates a vector of the mutation ids of the variants to be subjected to filtering
+#' This function parses \code{vcf_filename} and retrieves the mutation id (CHR:POS) of each C:G > T:A variant in the file.
 #'
-#' @param vcf_filename Variant call vcf filename
+#' @param vcf_filename character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify.
 #'
-#' @return Vector containing the mutation id of the variants to be subjected to filtering. Mutation id format is samplename:chr:pos.
+#' @return Character vector with the mutation id, i.e. CHR:POS, of the C:G > T:A variants in \code{vcf_filename}.
 #' @export
 #'
 #' @examples
@@ -236,17 +241,19 @@ get_mut_id <- function(vcf_filename) {
   return(mutation_ids)
 }
 
-#' Get depth
+#' Retrieve read depth
 #'
-#' Gets read depth at variant locus
+#' This function retrieves the read depth at each C:G > T:A variant locus present in \code{vcf_filename}. This data is retrieved from \code{vcf_filename}.
 #'
-#' @param vcf_filename Variant call vcf filename
-#' @param samplename Name given to the sample the vcf filename contains variants from, ordered in order of appearance in the vcf file
-#' @param ... Not to be checked
+#' @param vcf_filename character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode with strand bias annotation enabled.
+#' @param samplename character string naming the sample in \code{vcf_filename}. This must match the name given to the sample when running Mutect2. It can be obtained by calling \code{get_samplename} on \code{vcf_filename}.
+#' @param ... additional arguments not to be checked.
 #'
-#' @return Vector containing the read depth at each variant locus
+#' @return Numeric vector with the read depth at each C:G > T:A variant locus present in \code{vcf_filename}, ordered by appearance in the file.
 #' @export
 #' @import dplyr
+#' @import tibble
+#' @import tidyr
 #'
 #' @examples
 get_depth <- function(vcf_filename, samplename, ...) {
@@ -260,11 +267,13 @@ get_depth <- function(vcf_filename, samplename, ...) {
   return(depth)
 }
 
-#' Get allele frequency
+#' Retrieve allele frequency
+#'
+#' This function retrieves the allele frequency of each C:G > T:A variant present in \code{vcf_filename}. This data is retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_depth
 #'
-#' @return Vector containing the allele frequency (AF) of each variant, ordered in order of appearance in the vcf file
+#' @return Numeric vector with the allele frequency (AF) of each C:G > T:A variant present in \code{vcf_filename}, ordered by appearance in the file.
 #' @export
 #'
 #' @examples
@@ -275,12 +284,14 @@ get_AF <- function(vcf_filename, samplename, ...) {
   return(AF)
 }
 
-#' Get reference allele
+#' Retrieve reference allele
 #'
-#' @param vcf_filename Variant call vcf filename
-#' @param ... Not to be checked
+#' This function retrieves the reference allele of each C:G > T:A variant present in \code{vcf_filename}. This data is retrieved from \code{vcf_filename}.
 #'
-#' @return Vector containing the reference allele of each variant, ordered in order of appearance in the vcf file
+#' @param vcf_filename character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode.
+#' @param ... additional arguments not to be checked.
+#'
+#' @return Character vector with the reference allele of each C:G > T:A variant present in \code{vcf_filename}, ordered by appearance in the file.
 #' @export
 #'
 #' @examples
@@ -290,11 +301,13 @@ get_ref_allele <- function(vcf_filename, ...) {
   return(ref_alleles)
 }
 
-#' Get alternate allele
+#' Retrieve alternate allele
+#'
+#' This function retrieves the alternate allele of each C:G > T:A variant present in \code{vcf_filename}. This data is retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_ref_allele
 #'
-#' @return Vector containing the alternate allele of each variant, ordered in order of appearance in the vcf file
+#' @return Character vector with the alternate allele of each C:G > T:A variant present in \code{vcf_filename}, ordered by appearance in the file.
 #' @export
 #'
 #' @examples
@@ -304,16 +317,17 @@ get_alt_allele <- function(vcf_filename, ...) {
   return(alt_alleles)
 }
 
-#' Get number of alternate alleles
+#' Retrieve number of alternate alleles
 #'
-#' Get number of reads that support the alternate allele
+#' This function retrieves the number of reads that support the alternate allele of each C:G > T:A variant present in \code{vcf_filename}. This data is retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_depth
-#' @param depth Vector containing the read depth at each variant locus
-#' @param ... Not to be checked
+#' @param depth numeric vector containing the read depth at each C:G > T:A variant locus
+#' @param ... additional arguments not to be checked.
 #'
-#' @return List containing two vectors: the number of reads that support the alternate allele and ...
+#' @return List containing two numeric vectors: the number of reads that support the alternate allele and the number of reads that support the alternate allele divided by the total number of reads at that site. Each element in the vectors corresponds to a C:G > T:A variant in \code{vcf_filename} and the elements are ordered by appearance in \code{vcf_filename}.
 #' @export
+#' @details \code{get_alt_bases} first retrieves the number of reads that support the alternate allele of each C:G > T:A variant present in \code{vcf_filename}. It then calculates the ratio between this value and the total number of reads at the site and reports both values, which is provided in \code{depth}.
 #'
 #' @examples
 get_alt_bases <- function(vcf_filename, depth, samplename, ...) {
@@ -324,14 +338,15 @@ get_alt_bases <- function(vcf_filename, depth, samplename, ...) {
   return(list(alt_bases, alt_base_ratio))
 }
 
-#' Get number of reference alleles
+#' Retrieve number of reference alleles
 #'
-#' Get number of reads that support the reference allele
+#' This function retrieves the number of reads that support the reference allele of each C:G > T:A variant present in \code{vcf_filename}. This data is retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_alt_bases
 #'
-#' @return List containing two vectors: the number of reads that support the reference allele and ...
+#' @return List containing two numeric vectors: the number of reads that support the reference allele and the number of reads that support the reference allele divided by the total number of reads at that site. Each element in the vectors corresponds to a C:G > T:A variant in \code{vcf_filename} and the elements are ordered by appearance in \code{vcf_filename}.
 #' @export
+#' @details \code{get_ref_bases} first retrieves the number of reads that support the reference allele of each C:G > T:A variant present in \code{vcf_filename}. It then calculates the ratio between this value and the total number of reads at the site and reports both values, which is provided in \code{depth}.
 #'
 #' @examples
 get_ref_bases <- function(vcf_filename, depth, samplename, ...) {
@@ -342,14 +357,16 @@ get_ref_bases <- function(vcf_filename, depth, samplename, ...) {
   return(list(ref_bases, ref_base_ratio))
 }
 
-#' Get base quality
+#' Retrieve base quality
 #'
-#' Get median Phred quality of the bases that support the alternate allele.
+#' This function retrieves the median Phred quality of the bases that support the alternate allele of each C:G > T:A variant present in \code{vcf_filename}. This data is retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_depth
 #'
-#' @return List containing two vectors: median base quality of the alternate allele and ratio between median base quality of the alternate allele and median base quality of the reference allele
+#' @return List containing two numeric vectors: the median Phred base quality of the alternate allele and the ratio between the median Phred base quality of the alternate allele and the median Phred base quality of the reference allele. Each element in the vectors corresponds to a C:G > T:A variant in \code{vcf_filename} and the elements are ordered by appearance in \code{vcf_filename}.
 #' @export
+#' @import dplyr
+#' @details \code{get_base_qual} first retrieves the median Phred quality of the bases that support the alternate allele of each C:G > T:A variant present in \code{vcf_filename}. It then retrieves this same value for the bases that support the reference allele of the same set of variants. It finally calculates the ratio between the two of them and reports two values: the median Phred quality of the bases that support the alternate allele and the calculated ratio.
 #'
 #' @examples
 get_base_qual <- function(vcf_filename, samplename, ...) {
@@ -363,14 +380,16 @@ get_base_qual <- function(vcf_filename, samplename, ...) {
   return(list(base_qual_tumor, base_qual_frac))
 }
 
-#' Get variant median fragment length
+#' Retrieve variant median fragment length
 #'
-#' Get median fragment length for reads that support the alternate allele
+#' This function retrieves the median fragment length of the reads that support the alternate allele of each C:G > T:A variant present in \code{vcf_filename}.This data is retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_depth
 #'
-#' @return Vector containing the median median fragment length of each variant, ordered in order of appearance in the vcf file
+#' @return Numeric vector with the median median fragment length of each C:G > T:A variant present in \code{vcf_filename}, ordered by appearance in the file.
+#'
 #' @export
+#' @import dplyr
 #'
 #' @examples
 get_fraglength <- function(vcf_filename, samplename, ...) {
@@ -381,14 +400,15 @@ get_fraglength <- function(vcf_filename, samplename, ...) {
   return(fraglen)
 }
 
-#' Get distance from end of read
+#' Retrieve variant distance from end of read
 #'
-#' Get median value of the position of the variant (starting from the end of the read) in reads that support the alternate allele.
+#' \code{get_pos_from_end} retrieves, for each C:G > T:A variant present in \code{vcf_filename}, the median value of the position of the variant (starting from the end of the read) in those reads that support the alternate allele. This data is retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_depth
 #'
-#' @return Vector containing the median distance from end of read of each variant, ordered in order of appearance in the vcf file
+#' @return Numeric vector containing the median distance from end of read of each C:G > T:A variant in \code{vcf_filename}, ordered by appearance in the file.
 #' @export
+#' @import dplyr
 #'
 #' @examples
 get_pos_from_end <- function(vcf_filename, samplename, ...) {
@@ -398,14 +418,15 @@ get_pos_from_end <- function(vcf_filename, samplename, ...) {
   return(pos_from_end)
 }
 
-#' Get mapping quality
+#' Retrieve mapping quality
 #'
-#' Get median Phred mapping quality (MAPQ) of the bases that support the alternate allele
+#' \code{get_map_qual} retrieves, for each C:G > T:A variant present in \code{vcf_filename}, the median Phred mapping quality (MAPQ) of the bases that support the alternate allele. This data is retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_depth
 #'
-#' @return Vector containing the mapping quality of each variant, ordered in order of appearance in the vcf file
+#' @return Numeric vector containing the MAPQ mapping quality of each C:G > T:A variant in \code{vcf_filename}, ordered by appearance in the file.
 #' @export
+#' @import dplyr
 #'
 #' @examples
 get_map_qual <- function(vcf_filename, samplename, ...) {
@@ -415,14 +436,16 @@ get_map_qual <- function(vcf_filename, samplename, ...) {
   return(map_qual)
 }
 
-#' Get read pair orientation bias
+#' Calculate read pair orientation bias
 #'
-#' Get two read pair orientation bias (RPOB) metrics: FdeamC and strand orientation bias
+#' \code{get_RPOB} calculates, for each C:G > T:A variant present in \code{vcf_filename}, two read pair orientation bias (RPOB) metrics: FdeamC and strand orientation bias (SOB). The calculation is based on data retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_depth
 #'
-#' @return List containing two vectors: for each variant, FdeamC and SOB
+#' @return List containing two numeric vectors: FDeamC and SOB. Each element in the vectors corresponds to a C:G > T:A variant in \code{vcf_filename} and the elements are ordered by appearance in \code{vcf_filename}.
+#'
 #' @export
+#' @import dplyr
 #'
 #' @examples
 get_RPOB <- function(vcf_filename, samplename, ...) {
@@ -446,14 +469,18 @@ get_RPOB <- function(vcf_filename, samplename, ...) {
   return(list(FdeamC, SOB))
 }
 
-#' Get strand bias
+#' Calculate strand bias
 #'
-#' Get two strand bias (SB) metrics: SB defined by GATK and SB defined by Guo et al.
+#' This function calculates, for each C:G > T:A variant present in \code{vcf_filename}, two strand bias (SB) metrics: SB defined by GATK (SB-GATK) and SB defined by Guo et. al. (SB-Guo). The calculation is based on data retrieved from \code{vcf_filename}.
 #'
 #' @inheritParams get_depth
 #'
-#' @return List containing two vectors: for each variant, strand bias defined by GATK and strand bias defined by Guo et al.
+#' @return List of two numeric vectors. Each element in the vectors corresponds to a C:G > T:A variant in \code{vcf_filename}. The elements are ordered by appearance in \code{vcf_filename}. The first vector stores SB-GATK values and the second one SB-Guo values.
 #' @export
+#' @import dplyr
+#' @import tidyr
+#' @import tibble
+#' @details See \code{\link{calc_SB_Guo}} and \code{\link{calc_SB_GATK}} for further detail on these SB values.
 #'
 #' @examples
 get_SB <- function(vcf_filename, samplename, ...) {
@@ -471,17 +498,16 @@ get_SB <- function(vcf_filename, samplename, ...) {
 
 #' Calculate Guo strand bias
 #'
-#' Calculate variant strand bias as defined by Guo et al (SB-Guo)
+#' This function calculates variant strand bias as defined by Guo et. al. (SB-Guo).
 #'
-#' This strand bias value was defined in \emph{The effect of strand bias in Illumina short-read sequencing data}. It can be accessed here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3532123/ Its value ranges from 0 to infinity.
+#' @param a Number of reads supporting the reference allele mapping to the forward strand.
+#' @param b Number of reads supporting the alternate allele mapping to the forward strand.
+#' @param e Number of reads supporting the reference allele mapping to the forward strand.
+#' @param d Number of reads supporting the alternate allele mapping to the reverse strand.
 #'
-#' @param a Number of reads supporting the reference allele mapping to the forward strand
-#' @param b Number of reads supporting the alternate allele mapping to the forward strand
-#' @param e Number of reads supporting the reference allele mapping to the forward strand
-#' @param d Number of reads supporting the alternate allele mapping to the reverse strand
-#'
-#' @return Vector containing SB-Guo of each variant, ordered in order of appearance in the vcf file
+#' @return Numeric element with the SB-Guo value of the variant.
 #' @export
+#' @details This strand bias value was defined in \emph{The effect of strand bias in Illumina short-read sequencing data}. It can be accessed here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3532123/. It ranges from 0 to infinity.
 #'
 #' @examples
 calc_SB_Guo <- function(a, b, e, d) {
@@ -495,15 +521,13 @@ calc_SB_Guo <- function(a, b, e, d) {
 
 #' Calculate GATK strand bias
 #'
-#' Calculate variant strand bias as defined by GATK (SB-GATK)
-#'
-#' This strand bias value was defined by GATK and described in \emph{The effect of strand bias in Illumina short-read sequencing data}. It can be accessed here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3532123/ Its value ranges from 0 to infinity.
-#'
+#' This function calculates variant strand bias as defined by GATK (SB-GATK).
 #'
 #' @inheritParams calc_SB_Guo
 #'
-#' @return Vector containing SB-GATK of each variant, ordered in order of appearance in the vcf file
+#' @return Numeric element with the SB-GATK value of the variant.
 #' @export
+#' @details This strand bias value was defined by GATK and described in \emph{The effect of strand bias in Illumina short-read sequencing data}. It can be accessed here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3532123/. It ranges from 0 to infinity.
 #'
 #' @examples
 calc_SB_GATK <- function (a, b, e, d) {
@@ -515,9 +539,9 @@ calc_SB_GATK <- function (a, b, e, d) {
 
 #' Check case
 #'
-#' Check whether a character is lowercase
+#' \code{check_lowercase} checks whether a character is lowercase.
 #'
-#' @param char Character representing a genomic base
+#' @param char character string
 #'
 #' @return Logical value indicating whether \strong{char} is lowercase.
 #' @export

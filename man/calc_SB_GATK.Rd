@@ -7,20 +7,20 @@
 calc_SB_GATK(a, b, e, d)
 }
 \arguments{
-\item{a}{Number of reads supporting the reference allele mapping to the forward strand}
+\item{a}{Number of reads supporting the reference allele mapping to the forward strand.}
 
-\item{b}{Number of reads supporting the alternate allele mapping to the forward strand}
+\item{b}{Number of reads supporting the alternate allele mapping to the forward strand.}
 
-\item{e}{Number of reads supporting the reference allele mapping to the forward strand}
+\item{e}{Number of reads supporting the reference allele mapping to the forward strand.}
 
-\item{d}{Number of reads supporting the alternate allele mapping to the reverse strand}
+\item{d}{Number of reads supporting the alternate allele mapping to the reverse strand.}
 }
 \value{
-Vector containing SB-GATK of each variant, ordered in order of appearance in the vcf file
+Numeric element with the SB-GATK value of the variant.
 }
 \description{
-Calculate variant strand bias as defined by GATK (SB-GATK)
+This function calculates variant strand bias as defined by GATK (SB-GATK).
 }
 \details{
-This strand bias value was defined by GATK and described in \emph{The effect of strand bias in Illumina short-read sequencing data}. It can be accessed here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3532123/ Its value ranges from 0 to infinity.
+This strand bias value was defined by GATK and described in \emph{The effect of strand bias in Illumina short-read sequencing data}. It can be accessed here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3532123/. It ranges from 0 to infinity.
 }

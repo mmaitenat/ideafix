@@ -2,20 +2,23 @@
 % Please edit documentation in R/get_descriptors.R
 \name{get_SB}
 \alias{get_SB}
-\title{Get strand bias}
+\title{Calculate strand bias}
 \usage{
 get_SB(vcf_filename, samplename, ...)
 }
 \arguments{
-\item{vcf_filename}{Variant call vcf filename}
+\item{vcf_filename}{character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode with strand bias annotation enabled.}
 
-\item{samplename}{Name given to the sample the vcf filename contains variants from, ordered in order of appearance in the vcf file}
+\item{samplename}{character string naming the sample in \code{vcf_filename}. This must match the name given to the sample when running Mutect2. It can be obtained by calling \code{get_samplename} on \code{vcf_filename}.}
 
-\item{...}{Not to be checked}
+\item{...}{additional arguments not to be checked.}
 }
 \value{
-List containing two vectors: for each variant, strand bias defined by GATK and strand bias defined by Guo et al.
+List of two numeric vectors. Each element in the vectors corresponds to a C:G > T:A variant in \code{vcf_filename}. The elements are ordered by appearance in \code{vcf_filename}. The first vector stores SB-GATK values and the second one SB-Guo values.
 }
 \description{
-Get two strand bias (SB) metrics: SB defined by GATK and SB defined by Guo et al.
+This function calculates, for each C:G > T:A variant present in \code{vcf_filename}, two strand bias (SB) metrics: SB defined by GATK (SB-GATK) and SB defined by Guo et. al. (SB-Guo). The calculation is based on data retrieved from \code{vcf_filename}.
+}
+\details{
+See \code{\link{calc_SB_Guo}} and \code{\link{calc_SB_GATK}} for further detail on these SB values.
 }

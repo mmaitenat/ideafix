@@ -2,20 +2,23 @@
 % Please edit documentation in R/get_descriptors.R
 \name{get_surr_bases}
 \alias{get_surr_bases}
-\title{Get surrounding bases}
+\title{Retrieve surrounding base sequence of locus}
 \usage{
 get_surr_bases(fasta_filename, mutation_ids, k)
 }
 \arguments{
-\item{fasta_filename}{Reference genome data was aligned to.}
+\item{fasta_filename}{character string naming the path to the reference genome FASTA file the sequencing data was aligned to.}
 
-\item{mutation_ids}{Vector that contains the mutation ids of the variants to be subjected to filtering. Mutation id format is samplename:chr:pos.}
+\item{mutation_ids}{character vector containing the ids of the loci to get the surrounding bases of. Id format is CHR:POS and can be obtained by calling the function \code{get_mut_id} on the vcf file containing those loci.}
 
-\item{k}{Number of bases to the right and to the left of the variant locus to get the genomic sequence from.}
+\item{k}{integer with the number of bases to the right and to the left of the loci to get the genomic sequence from.}
 }
 \value{
-Genomic bases \strong{k} positions before and after each variant in \strong{mutation_ids}, including the variant locus itself.
+Character vector with the genomic base sequence ranging from locus - \code{k} to locus + \code{k} for each locus in \code{mutation_ids}.
 }
 \description{
-Returns the base composition of the fragment that surrounds each of the provided genomic variants. The region goes from the locus - \strong{k} to locus + \strong{k}, including the locus itself.
+\code{get_surr_bases} retrieves the base sequence of the \[locus - \code{k}, locus + \code{k}\] region of each locus in \code{mutation_ids} from \code{fasta_filename}.
+}
+\details{
+The sequence of the surrounding bases is retrieved from \code{fasta_filename} using samtools faidx tool. In the process, \code{get_surr_bases} creates a temporary file necessary for this tool to run.
 }

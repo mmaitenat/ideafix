@@ -7,20 +7,20 @@
 calc_SB_Guo(a, b, e, d)
 }
 \arguments{
-\item{a}{Number of reads supporting the reference allele mapping to the forward strand}
+\item{a}{Number of reads supporting the reference allele mapping to the forward strand.}
 
-\item{b}{Number of reads supporting the alternate allele mapping to the forward strand}
+\item{b}{Number of reads supporting the alternate allele mapping to the forward strand.}
 
-\item{e}{Number of reads supporting the reference allele mapping to the forward strand}
+\item{e}{Number of reads supporting the reference allele mapping to the forward strand.}
 
-\item{d}{Number of reads supporting the alternate allele mapping to the reverse strand}
+\item{d}{Number of reads supporting the alternate allele mapping to the reverse strand.}
 }
 \value{
-Vector containing SB-Guo of each variant, ordered in order of appearance in the vcf file
+Numeric element with the SB-Guo value of the variant.
 }
 \description{
-Calculate variant strand bias as defined by Guo et al (SB-Guo)
+This function calculates variant strand bias as defined by Guo et. al. (SB-Guo).
 }
 \details{
-This strand bias value was defined in \emph{The effect of strand bias in Illumina short-read sequencing data}. It can be accessed here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3532123/ Its value ranges from 0 to infinity.
+This strand bias value was defined in \emph{The effect of strand bias in Illumina short-read sequencing data}. It can be accessed here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3532123/. It ranges from 0 to infinity.
 }

@@ -2,20 +2,20 @@
 % Please edit documentation in R/get_descriptors.R
 \name{write_region_file}
 \alias{write_region_file}
-\title{Write temporary locus region file}
+\title{Write temporary loci region file}
 \usage{
-write_region_file(mutation_ids, k, tmp_filename)
+write_region_file(ids, k, tmp_filename)
 }
 \arguments{
-\item{mutation_ids}{Vector containing the mutation id of the variants to be subjected to filtering. Mutation id format is samplename:chr:pos.}
+\item{ids}{character vector containing the ids of the loci to get the surrounding bases of. Id format is CHR:POS and can be obtained by calling the function \code{get_mut_id} on the vcf file containing those loci.}
 
-\item{k}{Number of bases to the right and to the left of the variant locus to get the genomic sequence from.}
+\item{k}{integer with the number of bases to the right and to the left of the loci to get the genomic sequence from.}
 
-\item{tmp_filename}{Path of the temporary file.}
+\item{tmp_filename}{character string naming the path to the file to write.}
 }
 \value{
 None
 }
 \description{
-Creates the file needed by samtools faidx to get the surrounding bases of a locus
+\code{write_region_file} creates the file needed by samtools faidx to get the \code{k} surrounding bases of the loci defined in \code{mutation_ids}.
 }

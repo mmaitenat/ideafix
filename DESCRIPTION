@@ -22,6 +22,8 @@ Imports:
     purrr,
     logging,
     magrittr,
+    utils,
+    stats,
     h2o
 Suggests:
 URL: https://github.com/mmaitenat/ideafix

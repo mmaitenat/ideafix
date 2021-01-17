@@ -2,21 +2,23 @@
 % Please edit documentation in R/get_descriptors.R
 \name{get_descriptors}
 \alias{get_descriptors}
-\title{Get descriptors}
+\title{Get variant descriptors}
 \usage{
 get_descriptors(vcf_filename, fasta_filename)
 }
 \arguments{
-\item{vcf_filename}{Variant call vcf filename}
+\item{vcf_filename}{character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode with strand bias annotation enabled.}
 
-\item{fasta_filename}{Reference genome data was aligned to.}
+\item{fasta_filename}{character string naming the path to the reference genome FASTA file the sequencing data was aligned to.}
 }
 \value{
-A tibble containing the descriptors of the C:G > T:A variants needed for running the filtering.
+Tibble containing the descriptors of the C:G > T:A variants in \code{vcf_filename} needed for their classification.
 }
 \description{
-Get all the C:G > T:A variant descriptors needed for running the filtering.
+\code{get_descriptors} obtains a set of descriptors of the C:G > T:A variants in \code{vcf_filename} that are relevant to their classification into deaminations or non-deaminations. These descriptors are extracted from \code{vcf_filename} and \code{fasta_filename}, or calculated using data retrieved from them.
 }
 \details{
-Get all the C:G > T:A variant descriptors needed for running the filtering. The descriptors are obtained from the variant vcf file and reference genome fasta file. The function can only run on a single vcf file.
+The returned tibble contains the values of each C:G > T:A variant for the following descriptors, divided in columns: VAF, number of alternate bases, normalized number of alternate bases, number of reference bases, normalized number of reference bases, reference allele, alternate allele, base quality, base quality fraction, fragment length, median position from read end, mapping quality, FDeamC, SOB, SB-GUO, SB-GATK, normalized median position from read end, base two positions before, base one position before, base two positions after, base one position after, dinucleotide before and dinucleotide after.
+
+For further detail in each of them, see each of the individual help files.
 }

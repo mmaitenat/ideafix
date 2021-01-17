@@ -2,18 +2,18 @@
 % Please edit documentation in R/get_descriptors.R
 \name{get_ref_allele}
 \alias{get_ref_allele}
-\title{Get reference allele}
+\title{Retrieve reference allele}
 \usage{
 get_ref_allele(vcf_filename, ...)
 }
 \arguments{
-\item{vcf_filename}{Variant call vcf filename}
+\item{vcf_filename}{character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode.}
 
-\item{...}{Not to be checked}
+\item{...}{additional arguments not to be checked.}
 }
 \value{
-Vector containing the reference allele of each variant, ordered in order of appearance in the vcf file
+Character vector with the reference allele of each C:G > T:A variant present in \code{vcf_filename}, ordered by appearance in the file.
 }
 \description{
-Get reference allele
+This function retrieves the reference allele of each C:G > T:A variant present in \code{vcf_filename}. This data is retrieved from \code{vcf_filename}.
 }

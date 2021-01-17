@@ -2,20 +2,23 @@
 % Please edit documentation in R/get_descriptors.R
 \name{extract_vcf}
 \alias{extract_vcf}
-\title{Extract descriptors from vcf file}
+\title{Retrieve descriptors from vcf file}
 \usage{
 extract_vcf(vcf_filename, mutation_ids, samplename)
 }
 \arguments{
-\item{vcf_filename}{VCF filename to extract the sample name from}
+\item{vcf_filename}{character string naming the path to the input vcf, i.e. the vcf file containing the variants in \code{mutation_ids}. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode with strand bias annotation enabled.}
 
-\item{mutation_ids}{Vector that contains the mutation ids of the variants to be subjected to filtering. Mutation id format is chr:pos.}
+\item{mutation_ids}{character vector containing the ids of the loci to get the descriptors of. Id format is CHR:POS and can be obtained by calling the function \code{get_mut_id} on \code{vcf_filename}.}
 
-\item{samplename}{Name given to the sample the vcf filename contains variants from, ordered in order of appearance in the vcf file}
+\item{samplename}{character string naming the sample in \code{vcf_filename}. This must match the name given to the sample when running Mutect2. It can be obtained by calling \code{get_samplename} on \code{vcf_filename}.}
 }
 \value{
-A tibble containing the descriptors of the variants that are extracted from vcf files.
+Tibble containing a set of descriptors for the C:G > T:A variants in \code{mutation_ids} and extracted or calculated using \code{vcf_filename}.
 }
 \description{
-Extract model descriptors that are found in vcf files
+\code{extract_vcf} obtains from \code{vcf_filename}, a set of descriptors for the C:G > T:A variants defined in \code{mutation_ids}. These descriptors are relevant to their classification into deaminations or non-deaminations and may be directly extracted from \code{vcf_filename} or calculated using data retrieved from it.
+}
+\details{
+The returned tibble contains the values of each C:G > T:A variant for the following descriptors, divided in columns: VAF, number of alternate bases, normalized number of alternate bases, number of reference bases, normalized number of reference bases, reference allele, alternate allele, base quality, base quality fraction, fragment length, median position from read end, normalized median position from read end, mapping quality, FDeamC, SOB, SB-GUO and SB-GATK.
 }

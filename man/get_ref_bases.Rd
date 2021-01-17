@@ -2,22 +2,25 @@
 % Please edit documentation in R/get_descriptors.R
 \name{get_ref_bases}
 \alias{get_ref_bases}
-\title{Get number of reference alleles}
+\title{Retrieve number of reference alleles}
 \usage{
 get_ref_bases(vcf_filename, depth, samplename, ...)
 }
 \arguments{
-\item{vcf_filename}{Variant call vcf filename}
+\item{vcf_filename}{character string naming the path to the input vcf, i.e. the vcf file containing the variants to classify. This file must have been generated with Mutect2, either in tumor only or tumor/normal mode with strand bias annotation enabled.}
 
-\item{depth}{Vector containing the read depth at each variant locus}
+\item{depth}{numeric vector containing the read depth at each C:G > T:A variant locus}
 
-\item{samplename}{Name given to the sample the vcf filename contains variants from, ordered in order of appearance in the vcf file}
+\item{samplename}{character string naming the sample in \code{vcf_filename}. This must match the name given to the sample when running Mutect2. It can be obtained by calling \code{get_samplename} on \code{vcf_filename}.}
 
-\item{...}{Not to be checked}
+\item{...}{additional arguments not to be checked.}
 }
 \value{
-List containing two vectors: the number of reads that support the reference allele and ...
+List containing two numeric vectors: the number of reads that support the reference allele and the number of reads that support the reference allele divided by the total number of reads at that site. Each element in the vectors corresponds to a C:G > T:A variant in \code{vcf_filename} and the elements are ordered by appearance in \code{vcf_filename}.
 }
 \description{
-Get number of reads that support the reference allele
+This function retrieves the number of reads that support the reference allele of each C:G > T:A variant present in \code{vcf_filename}. This data is retrieved from \code{vcf_filename}.
+}
+\details{
+\code{get_ref_bases} first retrieves the number of reads that support the reference allele of each C:G > T:A variant present in \code{vcf_filename}. It then calculates the ratio between this value and the total number of reads at the site and reports both values, which is provided in \code{depth}.
 }
