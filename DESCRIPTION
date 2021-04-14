@@ -26,6 +26,9 @@ Imports:
     stats,
     h2o
 Suggests:
+    knitr,
+    rmarkdown
 URL: https://github.com/mmaitenat/ideafix
 BugReports: https://github.com/mmaitenat/ideafix/issues
 RoxygenNote: 7.1.0
+VignetteBuilder: knitr
