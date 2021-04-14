@@ -17,6 +17,6 @@
 run_ideafix <- function(vcf_filename, fasta_filename, algorithm = "RF", outformat = "vcf", outfolder = ".", outname = "ideafix_labels") {
   descriptors <- get_descriptors(vcf_filename = vcf_filename, fasta_filename = fasta_filename)
   predictions <- classify_variants(variant_descriptors = descriptors, algorithm = algorithm)
-  annotate_deaminations(predictions = predictions, format = outformat, outname = file.path(outfolder, outname), vcf_filename = vcf_filename)
+  annotate_deaminations(classification = predictions, format = outformat, outname = file.path(outfolder, outname), vcf_filename = vcf_filename)
   return(predictions)
 }
