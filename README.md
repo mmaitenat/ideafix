@@ -8,7 +8,7 @@ from DNA sequencing data from FFPE specimens.
 
 ``` r
 if (!require("devtools")) install.packages("devtools")
-devtools::install_github("mmaitenat/ideafix")
+devtools::install_github("mmaitenat/ideafix", build_vignettes = TRUE)
 ```
 
 ## Requirements
