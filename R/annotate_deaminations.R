@@ -30,7 +30,7 @@ write_vcf <- function(classification, vcf_filename, outfolder = ".", outname = "
   idx_cmd <- sprintf("tabix -p vcf %s.gz", tmp_filename)
   system(idx_cmd, intern = FALSE)
   # Annotate the vcf file
-  annotate_cmd <- sprintf("bcftools annotate -a %s.gz -h %s -c CHROM,POS,REF,ALT,DEAM_SCORE,DEAMINATION -o %s.vcf %s", tmp_filename, hdr_filename, file.path(outdir, outname), vcf_filename)
+  annotate_cmd <- sprintf("bcftools annotate -a %s.gz -h %s -c CHROM,POS,REF,ALT,DEAM_SCORE,DEAMINATION -o %s.vcf %s", tmp_filename, hdr_filename, file.path(outfolder, outname), vcf_filename)
   system(annotate_cmd, intern = FALSE)
 }
 

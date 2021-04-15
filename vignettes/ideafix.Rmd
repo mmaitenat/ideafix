@@ -1,0 +1,215 @@
+---
+title: "A tutorial on variant filtering on FFPE samples using Ideafix"
+author: "Maitena Tellaetxe Abete"
+date: '`r paste("Last updated:", Sys.Date())`'
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Ideafix}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+<!-- \newpage 
+\tableofcontents
+\newpage
+-->
+
+\newpage
+
+## What is Ideafix?
+
+Ideafix is a package for variant refinement designed specifically for FFPE DNA sequencing data. 
+
+DNA obtained from FFPE samples suffers from significant levels of fragmentation, denaturation, cross-linking and chemical modifications, all of which can contribute to sequence artefacts. One of the most prevalent artefacts is deamination of cytosine residues to uracil, which, as a consequence of successive PCR amplification rounds, results in the C$>$T (or G$>$A anti-sense strand) variant. So far, there is no gold-standard technique to distinguish real variants from FFPE artifacts.
+
+Ideafix is a decision tree-based variant refinement tool that identifies cytosine deaminations in lists of variants (vcf files) found in DNA sequencing data from FFPE specimens. It takes as an input a vcf file resulting from variant calling on an bam file from FFPE data, looks for C:G $>$ T:A variants with a VAF $<$ 30\% and identifies which of them are formalin-induced deaminations or artefacts. Ideafix outputs a table indicating the class label and the score for each variant, and allows the user to finally append the annotations to the original vcf file or simply output the table to a separate text file.
+
+Ideafix is a tool based on fully supervised learning and in fact uses two different models to do the variant classification: XGBoost or Random Forest (RF). Both models show outstanding performance (AUC $>$ 0.95) so the user can decide which one to use indistinctively. 
+
+As a fully supervised model, Ideafix is trained over a series of 23 variant descriptors related to allele-frequency, sequencing quality, fragment length and read-orientation bias, among others. One of the main contributing feature to the model is FDeamC, which is a numeric descriptor that reflects read-pair orientation bias. The following figure summarizes what read-pair orientation bias is, why it arises and how it can be relevant for identifying cytosine deaminations:
+
+![Origin and display of read pair orientation bias in sequencing reads along time](RPOB.png){width=100%}
+
+Ideafix is described in detail in an article that is currently under review and we will provide the link to it as long as it gets published.
+
+## Installation
+
+Ideafix can be installed from Github as follows:
+
+```{r eval=FALSE}
+if (!require("devtools")) install.packages("devtools")
+devtools::install_github("mmaitenat/ideafix", build_vignettes = TRUE)
+```
+
+Beware that `devtools::install_github()` does not build vignettes by default so we need to force it setting `build_vignettes` to `TRUE`.
+
+Note that installation may take a while as the size of the package is in the order of hundreds of Mbs. 
+
+
+## Requirements
+
+ideafix needs the following programs to run:
+
+* bcftools
+
+* samtools (>1.8)
+
+It also depends on the following packages:
+
+* h2o 3.22.1.1
+
+ideafix also needs the following files:
+
+* VCF file obtained from an FFPE specimen. Variant calling needs to be run with Mutect2, with strand bias annotation enabled. It can be either a tumor-only or a normal-tumor paired variant calling. 
+
+* Fasta file of the genome data was aligned to.
+
+## Workflow
+
+Ideafix classifies the C:G $>$ T:A variants with a VAF $<$ 30\% present in a vcf file into deaminations or non-deaminations following these steps:
+
+0. Variant calling using Mutect2
+1. Extraction of variant descriptors
+2. Classification of variants
+3. Analysis of class labels (optional)
+4. Annotation of class label into original vcf file or to separate file (optional)
+
+Ideafix allows to perform steps 1-4, and so the user needs to proceed previously with step 0. Below are explained these steps in more detail. 
+
+### Step 0: Variant calling using Mutect2
+
+Ideafix requires that variants in the FFPE sample to be analyzed have been called using Mutect2 caller with strand bias annotation enabled. Mutect2 can be run either in tumor-only or tumor-normal paired mode. For tumor-only mode, this would be as follows:
+
+```{bash eval=FALSE}
+gatk4="java -jar /opt/gatk-4.0.8.1/gatk-package-4.0.8.1-local.jar"
+REF=~/Data/hg19/ucsc.hg19.fasta
+bamfile=mysample.bam
+sample_id=mysample
+vcf_filename=mysample.vcf
+
+$gatk4 Mutect2 \
+     -R $REF \
+     -I $bamfile \
+     -tumor $sample_id \
+     -O mysample0.vcf \
+     --annotation StrandBiasBySample
+     
+$gatk4 FilterMutectCalls \
+     -V mysample0.vcf \
+     -O $vcf_filename     
+```
+
+We have run this on our own and a subset (1,000 variants) of the resulting vcf file can be found in extdata folder. This is only for didactic purpose we will be using this file along this tutorial. 
+
+The code is almost the same in case we are doing a paired variant calling:
+
+```{bash eval=FALSE}
+tumor_bamfile=mysample_tumor.bam
+tumor_sample_id=mysample_tumor
+normal_bamfile=mysample_normal.bam
+normal_sample_id=mysample_normal
+vcf_filename=mysample.vcf
+
+$gatk4 Mutect2 \
+    -R $REF \
+    -I $tumor_bamfile \
+    -tumor $tumor_sample_id \
+    -I $normal_bamfile \
+    -normal $normal_sample_id \
+    -O mysample0.vcf \
+    --annotation StrandBiasBySample
+    
+$gatk4 FilterMutectCalls \
+     -V mysample0.vcf \
+     -O $vcf_filename         
+```
+
+The `Mutect2` command runs the variant calling; the `FilterMutectCalls` applies filter-marks to the raw output of `Mutect2`. Note that `FilterMutectCalls` does not remove any variant from the vcf file; it simply adds a filtermark to each of them: PASS, if it considers they are putative variants, and if not PASS, the reason why it considers it is an artefact. 
+
+Ideafix only works on the PASS-filtering variants, as the rest are already discarded by the variant calling algorithm.
+
+### Step 1: Extraction of variant descriptors
+
+Once the vcf file is ready, we can start off using Ideafix. Let us load the library:
+
+```{r setup}
+library(ideafix)
+```
+
+The first step in the variant refinement is to extract the descriptors of the variants found in the vcf file. Ideafix extracts these descriptors from two files: the vcf file itself, and the fasta file to which data was aligned to.
+
+Note that we do not provide the reference genome mysample.vcf was aligned to as this would take up too much space for a package. 
+
+```{r}
+vcf_filename <- system.file("extdata", "mysample.vcf", package = "ideafix")
+ref_genome <- "/home/maitena/Research/Data/RefGenomes/hg19/ucsc.hg19.fasta"
+descriptors <- get_descriptors(vcf_filename = vcf_filename, fasta_filename = ref_genome)
+```
+
+If the variant extraction procedure goes well, you will read a message such as the one above.
+
+The resulting object is a data frame consisting of 28 columns or features for each variant in the vcf file. You can have a quick look on the data with the following commands:
+
+```{r}
+dplyr::glimpse(descriptors)
+skimr::skim(descriptors)
+```
+
+One can note that the `descriptors` variable contains 148 variants instead of the original 1,000 in mysample.vcf. This is because only these 148 were GATK PASS-filtering and the rest were already classified as some type of noise.
+
+### Step 2: Classification of variants
+
+Now we are ready to classify the variants into deaminations or non-deaminations. As said, there are two modes of doing this: to use the XGBoost model or to use the RF model (default). 
+
+It is important to note here that so far, the RF model can only be run with h2o version 3.22.1.1. To install this specific version, you can use the following lines:
+
+```{r eval=FALSE}
+if (!require("devtools")) install.packages("devtools")
+devtools::install_version("h2o", version = "3.22.1.1", repos = "http://cran.us.r-project.org")
+```
+
+If we use the RF model:
+
+```{r}
+predictions_RF <- classify_variants(variant_descriptors = descriptors, algorithm = "RF")
+```
+
+Equivalently, with XGBoost:
+
+```{r}
+predictions_XGBoost <- classify_variants(variant_descriptors = descriptors, algorithm = "XGBoost")
+```
+
+In both cases, if everything went well, you will see the message "Classification went successfully".
+
+The resulting object is again a data frame with 6 columns (chromosome, variant position in chromosome, reference allele, alternate allele, deamination score and class label). Each variant has a value for each of those columns.
+
+```{r}
+predictions_XGBoost
+```
+
+The classification is finished. You can now optionally analyze the obtained labels (step 3) or simply write the results to a external file.
+
+### Step 3: Analysis of class labels (optional)
+
+### Step 4: Annotation of class label into original vcf file or to separate file (optional)
+
+There are two options to output the class labels. The most straightforward is to append them to the original vcf file. This can be done as follows:
+
+```{r}
+annotate_deaminations(classification = predictions_XGBoost, format = "vcf", vcf_filename = vcf_filename, outfolder = ".", outname = "mysample_classiffied")
+```
+
+
+## Session Info
+
+```{r}
+sessionInfo()
+```

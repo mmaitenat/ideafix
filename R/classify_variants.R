@@ -53,7 +53,7 @@ classify_variants_RF <- function(variant_descriptors) {
   RF_model_filename <- system.file("extdata", "RF_final_model", package = "ideafix")
   Sys.unsetenv("http_proxy")
   h2o.init(
-    port = 54325,
+    port = 54321,
     nthreads = 2,
     max_mem_size = "8G")
   RF_model <- h2o.loadModel(RF_model_filename)
