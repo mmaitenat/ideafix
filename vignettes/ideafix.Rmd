@@ -2,7 +2,11 @@
 title: "A tutorial on variant filtering on FFPE samples using Ideafix"
 author: "Maitena Tellaetxe Abete"
 date: '`r paste("Last updated:", Sys.Date())`'
-output: rmarkdown::html_vignette
+output:
+  html_document:
+    fig_caption: yes
+    number_sections: no
+    toc: yes
 vignette: >
   %\VignetteIndexEntry{Ideafix}
   %\VignetteEngine{knitr::rmarkdown}
@@ -199,13 +203,51 @@ The classification is finished. You can now optionally analyze the obtained labe
 
 ### Step 3: Analysis of class labels (optional)
 
+We can now extract some statistics on the output class labels.
+
+```{r}
+table(factor(predictions_RF$DEAMINATION, levels = c("deamination", "non-deamination")), 
+      factor(predictions_XGBoost$DEAMINATION, levels = c("deamination", "non-deamination")))
+```
+
+As can be seen, RF classifies all the 148 variants as deaminations. The classification of XGBoost is almost the same, with the exception of two non-deaminations.
+
+More interesting than directly relying the class labels, we can work with the rankings. This may not the best dataset for this example, but let us imagine we need to select five of these C:G $>$ T:A variants to see whether they are relevant in the pathogenesis of the cancer disease the specimen comes from. In such case, 
+
+```{r}
+
+```
+
+
+
 ### Step 4: Annotation of class label into original vcf file or to separate file (optional)
 
 There are two options to output the class labels. The most straightforward is to append them to the original vcf file. This can be done as follows:
 
 ```{r}
-annotate_deaminations(classification = predictions_XGBoost, format = "vcf", vcf_filename = vcf_filename, outfolder = ".", outname = "mysample_classiffied")
+outname <- "mysample_classiffied"
+outfolder <- "."
+annotate_deaminations(classification = predictions_XGBoost, format = "vcf", vcf_filename = vcf_filename, outfolder = outfolder, outname = outname)
 ```
+The resulting file will have two new elements (related to the deamination score and deamination label) in the INFO field. These are described in the header of the resulting vcf file:
+
+```{r}
+cmd <- sprintf("bcftools view -h %s.vcf | grep DEAM", file.path(outfolder, outname))
+system(cmd, intern = TRUE)
+```
+
+Instead, we can simply write the `predictions_XGBoost` object as it is to a different text file:
+
+```{r}
+annotate_deaminations(classification = predictions_XGBoost, format = "tsv", outname = "mysample_classified")
+```
+
+If we do not specify any file name in `outname`, the filename will default to ideafix_labels.txt
+
+```{r}
+annotate_deaminations(classification = predictions_XGBoost, format = "tsv")
+```
+
 
 
 ## Session Info
