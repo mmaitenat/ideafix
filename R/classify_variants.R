@@ -8,7 +8,6 @@
 #'
 #'
 #' @return Tibble with six columns: CHROM, POS, REF, ALT, DEAM_SCORE, DEAMINATION. CHROM and POS identify the variant position, REF and ALT describe the reference and alternate alleles. DEAM_SCORE equals to the deamination score yielded by the selected classification algorithm (RF or XGBoost). Note that these values should not be interpreted as ordinary probabilities. DEAMINATION contains the label ideafix has assigned to the variant based on an optimized classification threshold.
-#' @export
 #' @import dplyr
 #' @import xgboost
 #' @import tibble
@@ -40,7 +39,6 @@ classify_variants_XGBoost <- function(variant_descriptors) {
 #'
 #' @return Tibble with six columns: CHROM, POS, REF, ALT, DEAM_SCORE, DEAMINATION. CHROM and POS identify the variant position, REF and ALT describe the reference and alternate alleles. DEAM_SCORE equals to the deamination score yielded by the selected classification algorithm (RF or XGBoost). Note that these values should not be interpreted as ordinary probabilities. DEAMINATION contains the label ideafix has assigned to the variant based on an optimized classification threshold.
 #'
-#' @export
 #' @details As opposed to classify_variants_XGBoost, \code{classify_variants_RF} can run with a \code{variant_descriptors} object with fewer descriptors than those included in the model. The whole set of descriptors includes VAF, number of alternate bases, normalized number of alternate bases, number of reference bases, normalized number of reference bases, reference allele, alternate allele, base quality, base quality fraction, fragment length, median position from read end, mapping quality, FDeamC, SOB, SB-GUO, SB-GATK, normalized median position from read end, base two positions before, base one position before, base two positions after, base one position after, dinucleotide before and dinucleotide after. However, if that is the case, good performance is not guaranteed.
 #' @import h2o
 #' @import dplyr
@@ -80,7 +78,6 @@ classify_variants_RF <- function(variant_descriptors) {
 #' @param algorithm character string naming the algorithm to use to classify the variants. Can be "RF" or "XGBoost".
 #'
 #' @return None
-#' @export
 #' @details \code{check_descriptors} checks if the descriptors present in \code{variant_descriptors} are sufficient to run the model in \code{algorithm} on them. If \code{variant_descriptors} object contains fewer descriptors than those included in the models and \code{algorithm} is "XGBoost", it throws an error message warning about the impossibility of executing the classification using that algorithm, and if the classification has been called, it stops. If \code{algorithm} equals to "RF" instead, a warning message alerts about this and the absence of performance guarantees, but the classification is executed if called.
 #'
 #' @examples
@@ -109,7 +106,6 @@ check_descriptors <- function(variant_descriptors, algorithm) {
 #' @param algorithm Character string naming the algorithm to use to classify the variants.
 #'
 #' @return None
-#' @export
 #' @details Valid \code{algorithm} values are "RF" and "XGBoost". Valid value check is case-insensitive. For instance, "RF", "rf", "Rf" and "rF" are all valid \code{algorithm} argument values.
 #'
 #' If an invalid \code{algorithm} value is provided, an error-message is displayed and the process is stopped.
@@ -130,7 +126,6 @@ check_algorithm <- function(algorithm) {
 #' @param split_targz_files character vector containing the full path values of the tar.gz files to be joint together.
 #'
 #' @return None
-#' @export
 #' @details \code{join_uncompress_targz} makes an internal system call to the program \code{tar} (\code{bsdtar}/GNU \code{tar}).
 #'
 #' @examples

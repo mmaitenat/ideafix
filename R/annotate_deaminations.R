@@ -8,7 +8,6 @@
 #' @param outname character string naming the output filename. Defaults to "ideafix_labels.vcf".
 #'
 #' @return None
-#' @export
 #' @importFrom utils write.table
 #' @details The object to be written corresponds to a data frame or tibble with the following columns: CHROM, POS, REF, ALT, DEAM_SCORE, DEAMINATION. CHROM and POS identify the variant position, REF and ALT describe the reference and alternate alleles. DEAM_SCORE equals to the deamination score yielded by the selected classification algorithm (RF or XGBoost). Note that these values should not be interpreted as ordinary probabilities. DEAMINATION contains the label ideafix has assigned to the variant based on an optimized classification threshold.
 #'

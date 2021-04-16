@@ -8,7 +8,6 @@
 #' @param passed Arguments passed to the function
 #'
 #' @return None
-#' @export
 #'
 #' @examples
 check_arguments <- function(defined, passed) {
