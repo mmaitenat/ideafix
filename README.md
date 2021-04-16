@@ -37,10 +37,10 @@ yet), you will also need:
 
 ``` r
 library(ideafix)
-# Extract descriptors from vcf filename
-vcf_filename <- "/home/maitena/Research/FFPE/code/ideafix/ideafix/inst/extdata/SRR1523260_filtermarks_annotated.vcf"
-ref_genome <- "/home/maitena/Research/Data/RefGenomes/hg19/ucsc.hg19.fasta"
+# Extract C:G > T:A variants with a VAF < 30% and their descriptors from vcf filename
+vcf_filename <- "mysample_chr15.vcf"
+ref_genome <- "chr15.fasta"
 descriptors <- get_descriptors(vcf_filename = vcf_filename, fasta_filename = ref_genome)
-# Filter C:G > T:A variants
-predictions <- filter_variants(variant_descriptors = descriptors)
+# Filter variants
+predictions_XGBoost <- classify_variants(variant_descriptors = descriptors, algorithm = "XGBoost")
 ```
