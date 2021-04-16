@@ -3,7 +3,6 @@
 export(annotate_deaminations)
 export(classify_variants)
 export(get_descriptors)
-export(one_hot_encoding)
 export(run_ideafix)
 import(dplyr)
 import(h2o)

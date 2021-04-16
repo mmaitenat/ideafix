@@ -3,7 +3,6 @@
 #' @param variant_descriptors Matrix containing categorical variables
 #'
 #' @return Matrix with values one-hot encoded
-#' @export
 #' @import dplyr
 #' @import tidyr
 #' @examples
