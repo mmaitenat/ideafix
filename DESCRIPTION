@@ -24,7 +24,8 @@ Imports:
     magrittr,
     utils,
     stats,
-    h2o
+    h2o,
+    xgboost
 Suggests:
     knitr,
     rmarkdown
