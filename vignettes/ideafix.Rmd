@@ -294,7 +294,7 @@ As expected, as we raised the threshold, less deaminations are called in favour 
 There are two options to output the class scores and labels. The most straightforward is to append them to the original vcf file. This can be done as follows:
 
 ```{r}
-outname <- "mysample_classiffied"
+outname <- "mysample_classified"
 outfolder <- "."
 annotate_deaminations(classification = predictions_XGBoost, format = "vcf", vcf_filename = vcf_filename, outfolder = outfolder, outname = outname)
 ```
