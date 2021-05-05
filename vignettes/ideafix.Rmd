@@ -294,7 +294,7 @@ There are two options to output the class scores and labels. The most straightfo
 
 ```{r}
 outname <- "mysample_classified"
-outfolder <- "/tmp/"
+outfolder <- "."
 annotate_deaminations(classification = predictions_XGBoost, format = "vcf", vcf_filename = vcf_filename, outfolder = outfolder, outname = outname)
 ```
 

@@ -364,7 +364,7 @@ summary {
 
 <h1 class="title toc-ignore">A tutorial on variant filtering on FFPE samples using Ideafix</h1>
 <h4 class="author">Maitena Tellaetxe Abete</h4>
-<h4 class="date">Last updated: 2021-04-19</h4>
+<h4 class="date">Last updated: 2021-05-05</h4>
 
 </div>
 
@@ -589,7 +589,7 @@ skimr::skim(descriptors)
 #&gt;    0.5   13.5  ▇▁▁▁▁▁▁▁
 #&gt;    1.55  25.17 ▇▁▁▁▁▁▁▁
 #&gt;    1      1    ▇▁▁▁▁▁▁▇</code></pre>
-<p>One can note that the <code>descriptors</code> variable contains 3,443 variants instead of the original 21,699 in mysample_chr15.vcf. This is because only these 3,443 were GATK PASS-filtering and the rest were already classified as some type of noise.</p>
+<p>One can note that the <code>descriptors</code> variable contains 3,443 variants instead of the original 21,699 in mysample_chr15.vcf. This is because only these 3,443 were GATK PASS-filtering C:G &gt; T:A variants with a VAF &lt; 30%.</p>
 </div>
 <div id="step-2-classification-of-variants" class="section level3">
 <h3>Step 2: Classification of variants</h3>
@@ -605,11 +605,11 @@ devtools::install_version(&quot;h2o&quot;, version = &quot;3.22.1.1&quot;, repos
 #&gt;  Connection successful!
 #&gt; 
 #&gt; R is connected to the H2O cluster: 
-#&gt;     H2O cluster uptime:         3 days 23 hours 
+#&gt;     H2O cluster uptime:         20 days 2 minutes 
 #&gt;     H2O cluster timezone:       Europe/Madrid 
 #&gt;     H2O data parsing timezone:  UTC 
 #&gt;     H2O cluster version:        3.22.1.1 
-#&gt;     H2O cluster version age:    2 years, 3 months and 21 days !!! 
+#&gt;     H2O cluster version age:    2 years, 4 months and 6 days !!! 
 #&gt;     H2O cluster name:           H2O_started_from_R_maitena_gue019 
 #&gt;     H2O cluster total nodes:    1 
 #&gt;     H2O cluster total memory:   6.63 GB 
@@ -623,7 +623,7 @@ devtools::install_version(&quot;h2o&quot;, version = &quot;3.22.1.1&quot;, repos
 #&gt;     H2O API Extensions:         XGBoost, Algos, AutoML, Core V3, Core V4 
 #&gt;     R Version:                  R version 3.4.4 (2018-03-15)
 #&gt; Warning in h2o.clusterInfo(): 
-#&gt; Your H2O cluster version is too old (2 years, 3 months and 21 days)!
+#&gt; Your H2O cluster version is too old (2 years, 4 months and 6 days)!
 #&gt; Please download and install the latest version from http://h2o.ai/download/
 #&gt; 
 #&gt; 
@@ -780,17 +780,20 @@ table(factor(predictions_RF_custom$DEAMINATION, levels = c(&quot;deamination&quo
 <p>There are two options to output the class scores and labels. The most straightforward is to append them to the original vcf file. This can be done as follows:</p>
 <pre class="r"><code>outname &lt;- &quot;mysample_classified&quot;
 outfolder &lt;- &quot;.&quot;
-annotate_deaminations(classification = predictions_XGBoost, format = &quot;vcf&quot;, vcf_filename = vcf_filename, outfolder = outfolder, outname = outname)</code></pre>
+annotate_deaminations(classification = predictions_XGBoost, format = &quot;vcf&quot;, vcf_filename = vcf_filename, outfolder = outfolder, outname = outname)
+#&gt; Writing vcf file to ./mysample_classified.vcf</code></pre>
 <p>The resulting file will have two new elements (related to the deamination score and deamination label) in the INFO field. These are described in the header of the resulting vcf file:</p>
 <pre class="r"><code>cmd &lt;- sprintf(&quot;bcftools view -h %s.vcf | grep DEAM&quot;, file.path(outfolder, outname))
 system(cmd, intern = TRUE)
-#&gt; [1] &quot;##INFO=&lt;ID=DEAM_SCORE,Number=1,Type=Float,Description=\&quot;Deamination score of the variant.\&quot;&gt;&quot;                                                                                                                                                                                            
-#&gt; [2] &quot;##INFO=&lt;ID=DEAMINATION,Number=1,Type=String,Description=\&quot;Classification of the variant as deamination or non-deamination.\&quot;&gt;&quot;                                                                                                                                                           
-#&gt; [3] &quot;##bcftools_annotateCommand=annotate -a /tmp/ideafix_preds.temp.gz -h /tmp/ideafix_preds.hdr -c CHROM,POS,REF,ALT,DEAM_SCORE,DEAMINATION -o ././mysample_classified.vcf /home/maitena/R/x86_64-pc-linux-gnu-library/3.4/ideafix/extdata/mysample_chr15.vcf; Date=Mon Apr 19 11:09:29 2021&quot;</code></pre>
+#&gt; [1] &quot;##INFO=&lt;ID=DEAM_SCORE,Number=1,Type=Float,Description=\&quot;Deamination score of the variant.\&quot;&gt;&quot;                                                                                                                                                                                          
+#&gt; [2] &quot;##INFO=&lt;ID=DEAMINATION,Number=1,Type=String,Description=\&quot;Classification of the variant as deamination or non-deamination.\&quot;&gt;&quot;                                                                                                                                                         
+#&gt; [3] &quot;##bcftools_annotateCommand=annotate -a /tmp/ideafix_preds.temp.gz -h /tmp/ideafix_preds.hdr -c CHROM,POS,REF,ALT,DEAM_SCORE,DEAMINATION -o ./mysample_classified.vcf /home/maitena/R/x86_64-pc-linux-gnu-library/3.4/ideafix/extdata/mysample_chr15.vcf; Date=Wed May  5 12:10:18 2021&quot;</code></pre>
 <p>Instead, we can simply write the <code>predictions_XGBoost</code> object as it is to a different text file:</p>
-<pre class="r"><code>annotate_deaminations(classification = predictions_XGBoost, format = &quot;tsv&quot;, outname = &quot;mysample_classified&quot;)</code></pre>
+<pre class="r"><code>annotate_deaminations(classification = predictions_XGBoost, format = &quot;tsv&quot;, outname = &quot;mysample_classified&quot;)
+#&gt; Writing tsv file to ./mysample_classified.txt</code></pre>
 <p>If we do not specify any file name in <code>outname</code>, the filename will default to ideafix_labels.txt</p>
-<pre class="r"><code>annotate_deaminations(classification = predictions_XGBoost, format = &quot;tsv&quot;)</code></pre>
+<pre class="r"><code>annotate_deaminations(classification = predictions_XGBoost, format = &quot;tsv&quot;)
+#&gt; Writing tsv file to ./ideafix_labels.txt</code></pre>
 </div>
 </div>
 <div id="session-info" class="section level2">
