@@ -60,7 +60,7 @@ annotate_deaminations <- function(classification, format = "tsv", outfolder = ".
     if (is.null(vcf_filename)) {
       stop("Path to the vcf file ideafix has been run over must be provided.")
     } else {
-      write_vcf(vcf_filename = vcf_filename, classification = classification, outname = file.path(outfolder, outname))
+      write_vcf(vcf_filename = vcf_filename, classification = classification, outfolder = outfolder, outname = outname)
     }
   } else {
     warning("Export file format not recognized. Results will be exported to tsv file.")
