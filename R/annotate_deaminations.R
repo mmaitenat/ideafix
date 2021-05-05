@@ -54,12 +54,14 @@ write_vcf <- function(classification, vcf_filename, outfolder = ".", outname = "
 #' @examples
 annotate_deaminations <- function(classification, format = "tsv", outfolder = ".", outname = "ideafix_labels", vcf_filename = NULL) {
   if (format == "tsv") {
+    message(sprintf("Writing tsv file to %s.txt", file.path(outfolder, outname)))
     write.table(classification, file = file.path(outfolder, sprintf("%s.txt", outname)), sep = "\t", row.names = FALSE, quote = FALSE)
   }
   else if (format == "vcf") {
     if (is.null(vcf_filename)) {
       stop("Path to the vcf file ideafix has been run over must be provided.")
     } else {
+      message(sprintf("Writing vcf file to %s.vcf", file.path(outfolder, outname)))
       write_vcf(vcf_filename = vcf_filename, classification = classification, outfolder = outfolder, outname = outname)
     }
   } else {
