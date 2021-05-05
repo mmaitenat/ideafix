@@ -174,7 +174,7 @@ dplyr::glimpse(descriptors)
 skimr::skim(descriptors)
 ```
 
-One can note that the `descriptors` variable contains 3,443 variants instead of the original 21,699 in mysample_chr15.vcf. This is because only these 3,443 were GATK PASS-filtering and the rest were already classified as some type of noise.
+One can note that the `descriptors` variable contains 3,443 variants instead of the original 21,699 in mysample_chr15.vcf. This is because only these 3,443 were GATK PASS-filtering C:G > T:A variants with a VAF < 30%.
 
 ### Step 2: Classification of variants
 
@@ -295,6 +295,7 @@ There are two options to output the class scores and labels. The most straightfo
 ```{r}
 outname <- "mysample_classified"
 outfolder <- "."
+getwd()
 annotate_deaminations(classification = predictions_XGBoost, format = "vcf", vcf_filename = vcf_filename, outfolder = outfolder, outname = outname)
 ```
 
