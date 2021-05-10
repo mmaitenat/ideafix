@@ -181,8 +181,8 @@ system(untar_cmd)
 Once data is extracted, you must provide the full path to both files in the variables `vcf_filename` and `ref_genome`, as in this example:
 
 ```{r}
-vcf_filename <- "~/Downloads/mysample_chr15.vcf"
-ref_genome <- "~/Research/Data/RefGenomes/hg19/chr15.fasta"
+vcf_filename <- "~/Downloads/SampleData/mysample_chr15.vcf"
+ref_genome <- "~/Downloads/SampleData/chr15.fasta"
 ```
 
 The final step is to obtain the descriptors as follows:
@@ -195,13 +195,13 @@ descriptors <- get_descriptors(vcf_filename = vcf_filename, fasta_filename = ref
 descriptors <- readRDS(system.file("extdata", "descriptors.RDS", package = "ideafix"))
 ```
 
-In this example, the resulting object is a data frame consisting of 28 columns or features for each variant in the vcf file. You can have a quick look on the data with the following commands:
+In this example, the resulting object is a data frame consisting of 28 columns or features for each variant in the vcf file. You can have a quick look on the data with the following command:
 
 ```{r}
 dplyr::glimpse(descriptors)
 ```
 
-One can note that the `descriptors` variable contains 3,443 variants instead of the original 21,699 in mysample_chr15.vcf. This is because only these 3,443 were GATK PASS-filtering C:G > T:A variants with a VAF < 30%.
+One can note that the `descriptors` variable contains 2,508 variants instead of the original 21,699 in mysample_chr15.vcf. This is because only these 2,508 were GATK PASS-filtering C:G > T:A variants with a VAF < 30%.
 
 ### Step 2: Classification of variants
 
@@ -307,15 +307,14 @@ all_predictions %>%
   theme_minimal()
 ```
 
-As DEAM_SCORE is proportional to the degree of certainty on a variant being a deamination, this plot shows us that there is a large number of variants that are highly likely deaminations. An interesting alternative threshold would be that at which the score starts to drop rapidly, but the final election should be influenced by the steps to be taken with the variants hereafter. For instance, if the idea is to continue with a biological enrichment analysis, we can be quite permissive with the threshold as the analysis will filter additional variants. In such case, taking a close look at the curves, the threshold could be around 0.90 for XGBoost and 0.8 for RF. 
+As DEAM_SCORE is proportional to the degree of certainty on a variant being a deamination, this plot shows us that there is a large number of variants that are highly likely deaminations and that the two models make very similar predictions. An interesting alternative threshold would be that at which the score starts to drop rapidly, but the final election should be influenced by the steps to be taken with the variants hereafter. For instance, if the idea is to continue with a biological enrichment analysis, we can be quite permissive with the threshold as the analysis will filter additional variants. In such case, taking a close look at the curves, the threshold could be around 0.95. 
 
 ```{r}
-thr_XGBoost_str <- 0.9
+thr_str <- 0.95
 predictions_XGBoost_str <- predictions_XGBoost %>%
-  mutate(DEAMINATION = ifelse(DEAM_SCORE >= thr_XGBoost_str, "deamination", "non-deamination"))
-thr_RF_str <- 0.8
+  mutate(DEAMINATION = ifelse(DEAM_SCORE >= thr_str, "deamination", "non-deamination"))
 predictions_RF_str <- predictions_RF %>%
-  mutate(DEAMINATION = ifelse(DEAM_SCORE >= thr_RF_str, "deamination", "non-deamination"))
+  mutate(DEAMINATION = ifelse(DEAM_SCORE >= thr_str, "deamination", "non-deamination"))
 
 table(factor(predictions_RF_str$DEAMINATION, levels = c("deamination", "non-deamination")), 
       factor(predictions_XGBoost_str$DEAMINATION, levels = c("deamination", "non-deamination")))
@@ -353,15 +352,15 @@ outfolder <- "."
 annotate_deaminations(classification = predictions_XGBoost, format = "vcf", vcf_filename = vcf_filename, outfolder = outfolder, outname = outname)
 ```
 
-The resulting file will have two new elements (related to the deamination score and deamination label) in the INFO field of each PASS-filtering C:G > T:A variant, as in the following example variant:
+The resulting file will have two new elements (related to the deamination score and deamination label) in the INFO field of each PASS-filtering C:G > T:A variant, as in the following example:
 
 ```{r, eval = FALSE}
-cmd <- sprintf("grep PASS %s.vcf | tail -n +3 | head -1", file.path(outfolder, outname))
+cmd <- sprintf("grep PASS %s.vcf | grep DEAM | head -1", file.path(outfolder, outname))
 cat(system(cmd, intern = TRUE))
 ```
 
 ```{r, echo = FALSE}
-cmd <- sprintf("grep PASS %s | tail -n +3 | head -1", system.file("extdata", "mysample_classified.vcf", package = "ideafix"))
+cmd <- sprintf("grep PASS %s | grep DEAM | head -1", system.file("extdata", "mysample_classified.vcf", package = "ideafix"))
 cat(system(cmd, intern = TRUE))
 ```
 

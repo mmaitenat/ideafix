@@ -41,6 +41,10 @@ get_descriptors <- function(vcf_filename, fasta_filename) {
   all_descriptors <- all_descriptors %>%
     mutate(norm.pos.from.end = replace(norm.pos.from.end, both.reads.aligned == 0, NA),
            frag.length = replace(frag.length, both.reads.aligned == 0, NA))
+  # Frequency cutoff
+  AF_cutoff <- 0.3
+  all_descriptors <- all_descriptors %>%
+    filter(allele.freq <= AF_cutoff)
   # Rename columns
   all_descriptors <- rename(all_descriptors,
                             alt.bases = alt.bases1,
