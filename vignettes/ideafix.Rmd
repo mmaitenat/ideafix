@@ -223,7 +223,7 @@ In both cases, if everything went well, you will see the message "Classification
 
 The resulting object is again a data frame with 6 columns (chromosome, variant position in chromosome, reference allele, alternate allele, deamination score and class label). Of interest are the last two:
 
-The DEAM_SCORE column contains a numeric number that reflects the certainty about the classification as deamination, 1 being the highest certainty. The DEAMINATION column is a categorical classification based on the score. Note that the threshold used for this classification follows the particular criterion of maximizing the $F_1$ score.
+The DEAM_SCORE column contains a numeric number that reflects the certainty about the classification as deamination, 1 being the highest certainty. The DEAMINATION column is a categorical classification based on the score. Note that the threshold used for this classification follows the particular criterion of minimizing the number of false positives while keeping a minimum sensitivity of 0.99.
 
 Each variant has a value for each of those six columns.
 
@@ -307,10 +307,10 @@ all_predictions %>%
   theme_minimal()
 ```
 
-As DEAM_SCORE is proportional to the degree of certainty on a variant being a deamination, this plot shows us that there is a large number of variants that are highly likely deaminations and that the two models make very similar predictions. An interesting alternative threshold would be that at which the score starts to drop rapidly, but the final election should be influenced by the steps to be taken with the variants hereafter. For instance, if the idea is to continue with a biological enrichment analysis, we can be quite permissive with the threshold as the analysis will filter additional variants. In such case, taking a close look at the curves, the threshold could be around 0.95. 
+As DEAM_SCORE is proportional to the degree of certainty on a variant being a deamination, this plot shows us that there is a large number of variants that are highly likely deaminations and that the two models make very similar predictions. An interesting alternative threshold would be that at which the score starts to drop rapidly, but the final election should be influenced by the steps to be taken with the variants hereafter. For instance, if the idea is to continue with a biological enrichment analysis, we can be quite permissive with the threshold as the analysis will filter additional variants. In such case, taking a close look at the curves, the threshold could be around 0.97. 
 
 ```{r}
-thr_str <- 0.95
+thr_str <- 0.97
 predictions_XGBoost_str <- predictions_XGBoost %>%
   mutate(DEAMINATION = ifelse(DEAM_SCORE >= thr_str, "deamination", "non-deamination"))
 predictions_RF_str <- predictions_RF %>%
@@ -333,7 +333,7 @@ table(factor(predictions_RF_sft$DEAMINATION, levels = c("deamination", "non-deam
       factor(predictions_XGBoost_sft$DEAMINATION, levels = c("deamination", "non-deamination")))
 ```
 
-We can compare the contingency tables between these labels and the ones originally provided (in which a threshold close to 0.5 was used):
+We can compare the contingency tables between these labels and the ones originally provided (in which a thresholds between 0.95 and 0.96 were used):
 
 ```{r}
 table(factor(predictions_RF$DEAMINATION, levels = c("deamination", "non-deamination")), 
