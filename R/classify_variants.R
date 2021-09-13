@@ -19,7 +19,7 @@ classify_variants_XGBoost <- function(variant_descriptors) {
   XGBoost_pred <- stats::predict(XGBoost_model,
                                  as.matrix(variant_descriptors_XGBoost),
                                  type = "prob")
-  thr <- 0.5766285
+  thr <- 0.9439658
   XGBoost_pred_class <- ifelse(XGBoost_pred$X1 > thr, "deamination", "non-deamination") %>%
     factor(levels = c("non-deamination", "deamination"))
   predictions <- tibble(CHROM = gsub(":.*", "", variant_descriptors$id),
@@ -60,12 +60,15 @@ classify_variants_RF <- function(variant_descriptors) {
   RF_pred <- h2o.predict(object = RF_model,
                          newdata = variant_descriptors_h2o) %>%
     as_tibble()
+  thr <- 0.9640337
+  RF_manual_pred_class <- ifelse(as.data.frame(RF_pred)$X1 > min_sens_099_thr, "X1", "X0") %>%
+    factor(levels = c("X0", "X1"))
   predictions <- tibble(CHROM = gsub(":.*", "", variant_descriptors$id),
                         POS = gsub(".*:", "", variant_descriptors$id),
                         REF = variant_descriptors$ref.allele,
                         ALT = variant_descriptors$alt.allele,
                         DEAM_SCORE = RF_pred$X1,
-                        DEAMINATION = RF_pred$predict) %>%
+                        DEAMINATION = RF_manual_pred_class) %>%
     mutate(DEAMINATION = factor(ifelse (DEAMINATION == "X1", "deamination", "non-deamination")))
   return(predictions)
 }
