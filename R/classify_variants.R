@@ -61,7 +61,7 @@ classify_variants_RF <- function(variant_descriptors) {
                          newdata = variant_descriptors_h2o) %>%
     as_tibble()
   thr <- 0.9640337
-  RF_manual_pred_class <- ifelse(as.data.frame(RF_pred)$X1 > min_sens_099_thr, "X1", "X0") %>%
+  RF_manual_pred_class <- ifelse(as.data.frame(RF_pred)$X1 > thr, "X1", "X0") %>%
     factor(levels = c("X0", "X1"))
   predictions <- tibble(CHROM = gsub(":.*", "", variant_descriptors$id),
                         POS = gsub(".*:", "", variant_descriptors$id),
